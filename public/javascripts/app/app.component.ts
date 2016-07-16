@@ -1,6 +1,7 @@
 import {Component} from '@angular/core';
 declare var io:any;
 
+
 @Component({
     selector: 'auction-app',
     templateUrl: 'templates/product.html'

@@ -24,8 +24,8 @@ export class GameComponent {
         this.texture = null;
         this.bunny = null;
         this.socket = io('http://localhost:8000');
-
-        this.renderer = PIXI.autoDetectRenderer(800, 600,{backgroundColor : 0x1099bb});
+        //0x1099bb
+        this.renderer = PIXI.autoDetectRenderer(800, 600,{backgroundColor : 0x000000});
 
         //adding game to custom selector 
 
