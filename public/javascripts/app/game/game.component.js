@@ -1,4 +1,4 @@
-System.register(['@angular/core'], function(exports_1, context_1) {
+System.register(['@angular/core', './Tiles/TileMap', './Config/Config'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,17 +10,24 @@ System.register(['@angular/core'], function(exports_1, context_1) {
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1;
+    var core_1, TileMap_1, Config_1;
     var GameComponent;
     return {
         setters:[
             function (core_1_1) {
                 core_1 = core_1_1;
+            },
+            function (TileMap_1_1) {
+                TileMap_1 = TileMap_1_1;
+            },
+            function (Config_1_1) {
+                Config_1 = Config_1_1;
             }],
         execute: function() {
             GameComponent = (function () {
                 function GameComponent(_element) {
                     this._element = _element;
+                    //TODO reorganize code below
                     this.renderer = null;
                     this.stage = null;
                     this.texture = null;
@@ -28,6 +35,8 @@ System.register(['@angular/core'], function(exports_1, context_1) {
                     this.socket = null;
                     this.tank = null;
                     this.element = null;
+                    this.tileMap = null;
+                    //TODO reorganize
                     this.renderer = null;
                     this.stage = null;
                     this.texture = null;
@@ -39,7 +48,7 @@ System.register(['@angular/core'], function(exports_1, context_1) {
                 }
                 GameComponent.prototype.onAssetsLoaded = function (loader, resources) {
                     this.tank = {};
-                    this.renderer = PIXI.autoDetectRenderer(800, 600, { backgroundColor: 0x000000 });
+                    this.renderer = PIXI.autoDetectRenderer(Config_1.Config.gameWidth, Config_1.Config.gameHeight, { backgroundColor: Config_1.Config.gameBackgroundColour });
                     //adding game to custom selector 
                     //document.body.appendChild(this.renderer.view);
                     //it was this.element had to change it cause this is promise asyinkronius funciton
@@ -63,6 +72,9 @@ System.register(['@angular/core'], function(exports_1, context_1) {
                     //resources.gameTileSet.textures
                     var textures = u.frames(resources.gameTileSet.texture, [[0, 0], [16, 0]], 16, 16);
                     var textures2 = u.frames(resources.gameTileSet.texture, [[32, 0], [48, 0]], 16, 16);
+                    this.tileMap = new TileMap_1.TileMap(this.stage, u);
+                    this.tileMap.loadTiles(resources.gameTileSet.texture);
+                    this.tileMap.loadMap("");
                     //this.tank.walkUp = u.sprite(textures);
                     this.tank.walkUp = textures;
                     this.tank.walkUp = new PIXI.extras.MovieClip(this.tank.walkUp);

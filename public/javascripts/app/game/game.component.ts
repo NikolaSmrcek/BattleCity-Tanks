@@ -1,7 +1,10 @@
 /**
  * Created by nikola on 4/29/16.
  */
-import {Component, ElementRef} from '@angular/core';
+import { Component, ElementRef } from '@angular/core';
+import { TileMap } from './Tiles/TileMap';
+import { Config } from './Config/Config';
+import { Keys } from './Handlers/Keys';
 declare var PIXI: any;
 declare var io: any;
 declare var SpriteUtilities: any;
@@ -13,6 +16,8 @@ declare var SpriteUtilities: any;
 
 export class GameComponent {
 
+    //TODO reorganize code below
+
     renderer = null;
     stage = null;
     texture = null;
@@ -21,7 +26,10 @@ export class GameComponent {
     tank = null;
     element = null;
 
+    tileMap = null;
+
     constructor(public _element: ElementRef) {
+        //TODO reorganize
         this.renderer = null;
         this.stage = null;
         this.texture = null;
@@ -37,7 +45,7 @@ export class GameComponent {
     onAssetsLoaded(loader, resources) {
         this.tank = {};
 
-        this.renderer = PIXI.autoDetectRenderer(800, 600, { backgroundColor: 0x000000 });
+        this.renderer = PIXI.autoDetectRenderer(Config.gameWidth, Config.gameHeight, { backgroundColor: Config.gameBackgroundColour });
 
         //adding game to custom selector 
 
@@ -54,6 +62,7 @@ export class GameComponent {
 
         // create a new Sprite using the texture
         this.bunny = new PIXI.Sprite(this.texture);
+
 
         // center the sprite's anchor point
         this.bunny.anchor.x = 0.5;
@@ -80,6 +89,10 @@ export class GameComponent {
             [[32, 0], [48, 0]],
             16, 16
         );
+
+        this.tileMap = new TileMap(this.stage, u);
+        this.tileMap.loadTiles(resources.gameTileSet.texture);
+        this.tileMap.loadMap("");
 
         //this.tank.walkUp = u.sprite(textures);
         this.tank.walkUp = textures;
