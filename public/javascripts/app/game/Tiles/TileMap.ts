@@ -8,7 +8,7 @@ export class TileMap {
 	private numRows: number = null;
 	private numCols: number = null;
 	public tiles: any = {};
-	public map: any = null;
+	public map: any = {};
 	private u: any = null; //PIXI sprite utilities
 
 
@@ -17,13 +17,13 @@ export class TileMap {
 		this.u = _u;
 		this.numRows = Math.round(Config.gameWidth / (Config.tileSize));
 		this.numCols = Math.round(Config.gameHeight / (Config.tileSize));
+		this.map = {};
 	}
 
 	public loadTiles(texture) {
 		for (let key in Config.tileTypes) {
 			let tile = Config.tileTypes[key];
-			if (tile.skip) continue;
-			let spriteTexture = this.u.frame(texture, tile.x, tile.y, Config.tileSize, Config.tileSize);
+			let spriteTexture = tile.skip ? null : this.u.frame(texture, tile.x, tile.y, Config.tileSize, Config.tileSize);
 			this.tiles[key] = {
 				pixiSpriteTexture: spriteTexture,
 				type: tile.type,
@@ -31,32 +31,25 @@ export class TileMap {
 				key: key
 			};
 		}
-
-		this.tiles["nothing"] = {
-			pixiSpriteTexture: null,
-			type: 0,
-			key: "nothing"
-		}
-
 	}
 
 	public loadMap(_map) {
-		_map = Config.demoMap2; //TODO send it
+		_map = Config.demoMap2; //TODO send it - no demo map
 		if (typeof _map !== "string") return;
 		//for now default Map border will be applied, when making map need to take that in mind
-		this.map = new Array(this.numRows).fill(new Array(this.numCols))
-		//console.log("Children lenght: ", this.stage.children.length);
 
+		this.map = new Array();
 		let rows = _map.split("|");
-		if (rows.length != this.numRows) return console.log("Rows should match to extract map.", rows.length , " "+this.numRows);
+		if (rows.length != this.numRows) return console.log("Rows should match to extract map.", rows.length, " " + this.numRows);
 		for (let row = 0; row < rows.length; row++) {
+			this.map.push(new Array());
 			let columns = rows[row].split(",");
 			//if (columns.length != this.numCols) return console.log("Columns should match to extract map.");
 			for (let column = 0; column < columns.length; column++) {
-				this.addTile(row, column, Config.tileTypesMapping[columns[column]], this.map);
+				this.addTile(row, column, Config.tileTypesMapping[columns[column]]);
 			}
 		}
-
+		console.log("Mapa nakon ucitavanja: ", this.map );
 	}
 
 	public isTile(mapRow, mapColumn) {
@@ -66,25 +59,31 @@ export class TileMap {
 		return false;
 	}
 
-	public addTile(mapRow, mapColumn, tileType, _map) {
-		let x = mapRow * Config.tileSize,
-			y = mapColumn * Config.tileSize,
+	public addTile(mapRow, mapColumn, tileType) {
+		let y = parseInt((mapRow * Config.tileSize).toString(), 10),
+			x = parseInt((mapColumn * Config.tileSize).toString(), 10),
 			tile = new Tile(this.stage, this.tiles[tileType], x, y);
-		_map[mapRow][mapColumn] = tile;
+		this.map[mapRow][mapColumn] = tile;
+		if (tile.key == "brick") {
+			console.log("Added to map tile: ", tile, " row ", mapRow, " column ", mapColumn, " x ", x, " y ", y);
+		}
+		//console.log("Added to map tile: ", tile, " row ", mapRow, " column ", mapColumn);
 	}
 
-	public getNumRows(){
+	public getNumRows() {
 		return this.numRows;
 	}
 
-	public getNumCols(){
+	public getNumCols() {
 		return this.numCols;
 	}
 
-	public isTileBlocking(row: number, column: number){
-		return this.map[row,column].isBlocking();
+	public isTileBlocking(row: number, column: number) {
+		//console.log("Tile: ", this.map[row][column]);
+		if (this.map[row][column].isBlocking) {
+			//console.log("Blocking tile found at row: ", row, " column: ", column, " tile: ", this.map[row][column]);
+		}
+		return this.map[row][column].isBlocking();
 	}
-
-	//TODO getTypeOfTile
 
 }

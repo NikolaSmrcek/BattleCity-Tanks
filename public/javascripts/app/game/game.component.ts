@@ -5,6 +5,7 @@ import { Component, ElementRef } from '@angular/core';
 import { TileMap } from './Tiles/TileMap';
 import { Config } from './Config/Config';
 import { Keys } from './Handlers/Keys';
+import { Tank } from './Entity/Tank';
 declare var PIXI: any;
 declare var io: any;
 declare var SpriteUtilities: any;
@@ -18,22 +19,21 @@ export class GameComponent {
 
     //TODO reorganize code below
 
-    renderer = null;
-    stage = null;
-    texture = null;
-    bunny = null;
-    socket = null;
-    tank = null;
-    element = null;
+    public renderer: any = null;
+    public stage: any = null;
+    public socket: any = null;
+    public element: any = null;
+    public u: any = null;
 
-    tileMap = null;
+    public tileMap: any = null;
+    public myTank: any = null;
+
 
     constructor(public _element: ElementRef) {
         //TODO reorganize
-        this.renderer = null;
-        this.stage = null;
-        this.texture = null;
-        this.bunny = null;
+        this.renderer = PIXI.autoDetectRenderer(Config.gameWidth, Config.gameHeight, { backgroundColor: Config.gameBackgroundColour });
+        this.stage = new PIXI.Container();
+        this.u = new SpriteUtilities(PIXI);
         this.element = _element;
         this.socket = io('http://localhost:8000');
         //0x1099bb
@@ -43,107 +43,72 @@ export class GameComponent {
     }
 
     onAssetsLoaded(loader, resources) {
-        this.tank = {};
-
-        this.renderer = PIXI.autoDetectRenderer(Config.gameWidth, Config.gameHeight, { backgroundColor: Config.gameBackgroundColour });
-
-        //adding game to custom selector 
-
-        //document.body.appendChild(this.renderer.view);
-
         //it was this.element had to change it cause this is promise asyinkronius funciton
         this.element.nativeElement.appendChild((this.renderer.view));
 
-        // create the root of the scene graph
-        this.stage = new PIXI.Container();
-
-        // create a texture from an image path
-        this.texture = PIXI.Texture.fromImage('/public/images/bunny.png');
-
-        // create a new Sprite using the texture
-        this.bunny = new PIXI.Sprite(this.texture);
-
-
-        // center the sprite's anchor point
-        this.bunny.anchor.x = 0.5;
-        this.bunny.anchor.y = 0.5;
-
-        // move the sprite to the center of the screen
-        this.bunny.position.x = 300;
-        this.bunny.position.y = 150;
-
-        this.setBunny(this.bunny);
-        this.stage.addChild(this.bunny);
-
-
-        var u = new SpriteUtilities(PIXI);
-
-        //this.tank.walkLeft this.tank.walkUp
-        //resources.gameTileSet.textures
-        var textures = u.frames(resources.gameTileSet.texture,
-            [[0, 0], [16, 0]],
-            16, 16
-        );
-
-        var textures2 = u.frames(resources.gameTileSet.texture,
-            [[32, 0], [48, 0]],
-            16, 16
-        );
-
-        this.tileMap = new TileMap(this.stage, u);
+        this.tileMap = new TileMap(this.stage, this.u);
         this.tileMap.loadTiles(resources.gameTileSet.texture);
-        this.tileMap.loadMap("");
+        this.tileMap.loadMap(""); //TODO get map from socket
 
-        //this.tank.walkUp = u.sprite(textures);
-        this.tank.walkUp = textures;
-        this.tank.walkUp = new PIXI.extras.MovieClip(this.tank.walkUp);
+        this.tileMap.isTileBlocking(73,75);
 
-        this.tank.walkUp.position.set(150);
-        this.tank.walkUp.anchor.set(0.5);
-        this.tank.walkUp.animationSpeed = 0.5;
-
-        this.tank.walkLeft = textures2;
-        this.tank.walkLeft = new PIXI.extras.MovieClip(this.tank.walkLeft);
-
-        this.tank.walkLeft.position.set(150);
-        this.tank.walkLeft.anchor.set(0.5);
-        this.tank.walkLeft.animationSpeed = 0.5;
-
-        //this.tank.walkUp.play();
-
-        this.tank.currentAnimation = this.tank.walkUp;
-        this.tank.currentAnimation.play();
-
-        this.tank.walkLeft.visible = false;
-
-        this.tank.walkUp.animationNameString = "walkUp";
-        this.tank.walkLeft.animationNameString = "walkLeft";
-        this.tank.walkUp.scale.set(2); //skaliranje slike
-        this.tank.walkLeft.scale.set(2); //sklairanje slike (tenka)
-
-        this.setTank(this.tank);
-        this.stage.addChild(this.tank.currentAnimation);
-        this.stage.addChild(this.tank.walkLeft);
+        this.myTank = new Tank(this.tileMap, {
+            stage: this.stage,
+            texture: resources.gameTileSet.texture,
+            u: this.u,
+            tankColour: "green",
+            tankType: "small",
+            tankOwner: "kanta",
+            isMyTank: true,
+            x: 250,
+            y: 450
+        }, "right");
 
         this.setupSockets();
+        this.registerKeyBoard();
         this.animate();
-    }
-
-    changePosition(newPos) {
-        this.bunny.position.x = newPos;
-        //primjer kako promjenit animaciju
-        this.tank.currentAnimation.visible = false;
-        this.tank.currentAnimation.stop();
-        
-        this.tank.walkLeft.visible = true;
-        this.tank.currentAnimation = this.tank.walkLeft;
-        this.tank.currentAnimation.play();
     }
 
     setupSockets() {
         this.socket.on('priceUpdate', function(data) {
-            this.changePosition(data);
+
         }.bind(this));
+    }
+
+    registerKeyBoard() {
+        let keys = Config.keyboard;
+        for (let key in Config.keyboard) {
+            let keyProps = Config.keyboard[key];
+            console.log("Key: ", key, " type: ", typeof key);
+            switch (keyProps.action) {
+                case "right":
+                case "up":
+                case "down":
+                case "left":
+                    Keys.keyboard(parseInt(key, 10));
+                    Keys.keys[key].press = () => {
+                        //TODO TEST + add socket emit
+                        //console.log("Key for changing direction pressed");
+                        this.myTank.setDirection(keyProps.action);
+                    };
+                    Keys.keys[key].release = () => {
+                        //console.log("Key release.");
+                    };
+                    break;
+                case "shoot":
+                    Keys.keyboard(parseInt(key, 10));
+                    Keys.keys[key].press = () => {
+                        //TODO TEST + add socket emit + action for shooting
+                        console.log("PEW PEW PEW");      
+                    };
+                    Keys.keys[key].release = () => {
+                        //console.log("Key release.");
+                    };
+                    break;
+                default: console.log("Unkown action: ", keyProps.action, " for ASCII key: ", key);
+            }
+
+        }
     }
 
     animate() {
@@ -151,18 +116,11 @@ export class GameComponent {
         requestAnimationFrame(this.animate.bind(this));
 
         // just for fun, let's rotate mr rabbit a little
-        this.bunny.rotation += 0.1;
+        this.myTank.animate();
         // this.tank.walkUp.rotation += 0.01;
 
         // render the container
         this.renderer.render(this.stage);
-    }
-
-    setTank(_tank) {
-        this.tank = _tank;
-    }
-    setBunny(_bunny) {
-        this.bunny = _bunny;
     }
 
 }

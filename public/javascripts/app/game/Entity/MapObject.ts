@@ -1,4 +1,6 @@
 import { Config } from '../Config/Config';
+declare var PIXI: any;
+declare var SpriteUtilities: any;
 
 export class MapObject {
 
@@ -6,86 +8,116 @@ export class MapObject {
 	public mapTileSize: number = 0;
 	public imageScale: number = 0;
 
-	private animations: any = {};
-	private currentAnimation: any = {};
+	protected animations: any = {};
+	protected currentAnimation: any = null;
 
-	private directions: any = {
+	protected directions: any = {
 		left: false,
 		right: false,
 		up: false,
 		down: false
 	}
 
-	private currentDirection: string = "";
+	protected currentDirection: string = "";
 
-	private x: number = 0;
-	private y: number = 0;
-	private dx: number = 0;
-	private dy: number = 0;
+	protected x: number = 0;
+	protected y: number = 0;
+	protected dx: number = 0;
+	protected dy: number = 0;
+
+	//movement
+	protected movementSpeed: number = 0;
+	protected maxMovementSpeed: number = 0;
+	protected slowingSpeed: number = 0;
 
 	//For collision detecion
-	private currentRow: number = 0;
-	private currentColumn: number = 0;
-	private xdest: number = 0;
-	private ydest: number = 0;
-	private xtemp: number = 0;
-	private ytemp: number = 0;
+	protected currentRow: number = 0;
+	protected currentColumn: number = 0;
+	protected xdest: number = 0;
+	protected ydest: number = 0;
+	protected xtemp: number = 0;
+	protected ytemp: number = 0;
 	public cwidth: number = 0;
 	public cheight: number = 0;
 
 
-	private topLeft: boolean = false;
-	private topRight: boolean = false;
-	private bottomLeft: boolean = false;
-	private bottomRight: boolean = false;
-	private insideTile: boolean = false;
+	protected topLeft: boolean = false;
+	protected topRight: boolean = false;
+	protected bottomLeft: boolean = false;
+	protected bottomRight: boolean = false;
 
-	private tileMap: any = {};
+	protected topTile: boolean = false;
+	protected bottomTile: boolean = false;
+	protected leftTile: boolean = false;
+	protected rightTile: boolean = false;
 
-	constructor(_tileMap: any, _direction: string, entityTileSize: number = null) {
+	protected tileMap: any = {};
+
+	//pixiStage
+	protected stage: any = {};
+	protected graphics: any = null;
+
+	constructor(_tileMap: any, _pixiObject: any, entityTileSize: number = null) {
 		this.tileMap = _tileMap;
 		this.entityTileSize = entityTileSize || Config.entityTileSize;
+		//TODO rethink where and how to put initial positioning
+		this.x = _pixiObject.x;
+		this.y = _pixiObject.y;
+
+		this.stage = _pixiObject.stage;
 		this.imageScale = Config.imageScale;
 		this.mapTileSize = Config.tileSize;
-		//TODO change other directions to false, set new facing to true
-		this.setDirection(_direction);
+
+		/*
+		this.graphics = new PIXI.Graphics();
+		this.graphics.lineStyle(1, 0xFF0000);
+		this.graphics.drawRect(37 * 8, 31 * 8, 8, 8);
+		this.stage.addChild(this.graphics);
+		*/
 	}
 
-	public calculateCorners(x: number, y: number) {
-		let leftTile = Math.round((this.x - (this.cwidth / 2)) / this.mapTileSize);
-		let rightTile = Math.round((this.x + (this.cwidth / 2) - 1) / this.mapTileSize);
-		let topTile = Math.round((this.y - (this.cheight / 2)) / this.mapTileSize);
-		let bottomTile = Math.round((this.y - (this.cheight / 2) - 1) / this.mapTileSize);
+	public calculateCorners(_x: number, _y: number) {
+		let leftTile = parseInt(((_x - (this.cwidth / 2)) / this.mapTileSize).toString(), 10);
+		let rightTile = parseInt(((_x + (this.cwidth / 2)) / this.mapTileSize).toString(), 10);
+		let topTile = parseInt(((_y - (this.cheight / 2)) / this.mapTileSize).toString(), 10);
+		let bottomTile = parseInt(((_y + (this.cheight / 2)) / this.mapTileSize).toString(), 10);
 
 		if (topTile < 0 || bottomTile >= this.tileMap.getNumRows() || leftTile < 0 || rightTile >= this.tileMap.getNumCols()) {
-			this.topLeft = this.topRight = this.bottomLeft = this.bottomRight = this.insideTile = false;
+			this.topLeft = this.topRight = this.bottomLeft = this.bottomRight = true; //todo check
 			return;
 		}
 
-		this.topLeft = this.tileMap.isTileBlocking(topTile, leftTile);
-		this.topRight = this.tileMap.isTileBlocking(topTile, rightTile);
-		this.bottomLeft = this.tileMap.isTileBlocking(bottomTile, leftTile);
-		this.bottomRight = this.tileMap.isTileBlocking(bottomTile, rightTile);
-		this.insideTile = this.tileMap.isTileBlocking(this.currentRow, this.currentColumn);
+		
+		for (let row = topTile; row < bottomTile; row++) {
+			this.leftTile = (this.leftTile == false) ? this.tileMap.isTileBlocking(row, leftTile) : this.leftTile;
+			this.rightTile = (this.rightTile == false) ? this.tileMap.isTileBlocking(row, rightTile) : this.rightTile;
+		}
 
+		for (let column = leftTile; column < rightTile; column++) {
+			this.topTile = (this.topTile == false) ? this.tileMap.isTileBlocking(topTile, column) : this.topTile;
+			this.bottomTile = (this.bottomTile == false) ? this.tileMap.isTileBlocking(bottomTile, column) : this.bottomTile;
+		}
 	}
 
 	public checkTileMapCollision() {
-		this.currentRow = Math.round(this.y / this.mapTileSize);
-		this.currentColumn = Math.round(this.x / this.mapTileSize);
+
+		this.currentRow = parseInt((this.y / this.mapTileSize).toString(), 10);
+		this.currentColumn = parseInt((this.x / this.mapTileSize).toString(), 10);
 
 		this.xdest = this.x + this.dx;
 		this.ydest = this.y + this.dy;
 
 		this.xtemp = this.x;
 		this.ytemp = this.y;
-
+		if (this.dx == 0 && this.dy == 0) return;
 		this.calculateCorners(this.x, this.ydest);
 
 		if (this.dy < 0) {
-			if (this.topLeft || this.topRight) {
+			if (this.topTile) {
 				this.dy = 0;
-				this.ytemp = this.currentRow * this.mapTileSize + this.cwidth / 2;
+				//this.ytemp = this.currentRow * this.mapTileSize + this.cheight / 2;
+				this.ytemp = this.y;
+				this.topTile = false;
 			}
 			else {
 				this.ytemp += this.dy;
@@ -93,10 +125,12 @@ export class MapObject {
 		}
 
 		if (this.dy > 0) {
-			if (this.bottomLeft || this.bottomRight) {
+			if (this.bottomTile) {
 				this.dy = 0;
 				//falling false - TODO remove it
-				this.ytemp = (this.currentRow + 1) * this.mapTileSize - this.cwidth / 2;
+				//this.ytemp = (this.currentRow + 1) * this.mapTileSize - this.cheight / 2;
+				this.ytemp = this.y;
+				this.bottomTile = false;
 			}
 			else {
 				this.ytemp += this.dy;
@@ -104,37 +138,29 @@ export class MapObject {
 		}
 
 		this.calculateCorners(this.xdest, this.y);
+
 		if (this.dx < 0) {
-			if (this.insideTile) {
+			if (this.leftTile) {
 				this.dx = 0;
-				this.xtemp = ((this.currentColumn + 1) * this.mapTileSize) + 4; //TODO TEST and explore it
-				this.insideTile = false;
+				//this.xtemp = this.currentColumn * this.mapTileSize + this.cwidth / 2;
+				this.xtemp = this.x;
+				this.leftTile = false;
 			}
-			else{
-				if(this.topLeft || this.bottomLeft){
-					this.dx = 0;
-					this.xtemp = this.currentColumn * this.mapTileSize + this.cwidth / 2;
-				}
-				else{
-					this.xtemp += this.dx;
-				}
+			else {
+				this.xtemp += this.dx;
 			}
 		}
 
-		if(this.dx > 0){
-			if(this.insideTile){
+		if (this.dx > 0) {
+
+			if (this.rightTile) {
 				this.dx = 0;
-				this.xtemp = ((this.currentColumn) * this.mapTileSize - this.cwidth / 2) - 2;
-				this.insideTile = false;
+				//this.xtemp = (this.currentColumn + 1) * this.mapTileSize - this.cwidth / 2;
+				this.xtemp = this.x;
+				this.rightTile = false;
 			}
-			else{
-				if(this.topRight || this.bottomRight){
-					this.dx = 0;
-					this.xtemp = (this.currentColumn + 1) * this.mapTileSize - this.cwidth / 2;
-				}
-				else{
-					this.xtemp += this.dx;
-				}
+			else {
+				this.xtemp += this.dx;
 			}
 		}
 
@@ -143,6 +169,9 @@ export class MapObject {
 	public setPosition(x: number, y: number) {
 		this.x = x;
 		this.y = y;
+		for (let key in this.animations) {
+			this.animations[key].position.set(x, y);
+		}
 	}
 
 	public getX() {
@@ -153,25 +182,39 @@ export class MapObject {
 		return this.y;
 	}
 
-	public getCWidth(){
+	public getCWidth() {
 		return this.cwidth;
 	}
 
-	public getCHeight(){
+	public getCHeight() {
 		return this.cheight;
 	}
 
 	public setDirection(_direction: string) {
-		if (!this.directions[_direction]) return console.log("Wrong direction. Sent: ", _direction);
-		for (let key in Object.keys(this.directions)) {
+		if (!this.directions.hasOwnProperty(_direction)) return console.log("Wrong direction. Sent: ", _direction, " directions: ", this.directions);
+		for (let key in this.directions) {
 			if (key == _direction) {
 				this.directions[key] = true;
 				this.currentDirection = _direction;
+				this.setAnimation(_direction);
 			}
 			else {
 				this.directions[key] = false;
 			}
 		}
+	}
+
+	//TODO shoot
+
+	private setAnimation(_animation: string) {
+		if (!this.animations.hasOwnProperty(_animation)) return console.log("Non exsisting animation: ", _animation);
+		if (this.currentAnimation) {
+			this.currentAnimation.stop();
+			this.currentAnimation.visible = false;
+		}
+		this.currentAnimation = this.animations[_animation];
+		this.currentAnimation.play();
+		this.currentAnimation.visible = true;
 	}
 
 	public setVector(dx: number, dy: number) {

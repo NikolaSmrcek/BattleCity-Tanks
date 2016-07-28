@@ -9,6 +9,7 @@ System.register([], function(exports_1, context_1) {
                 function Tile(_stage, tileData, _x, _y) {
                     this.pixiSprite = null; //PixiSprite
                     this.type = null; //tip Tile-a
+                    this.key = null;
                     this.stage = null; //stage - scene which holds the game
                     this.x = 0;
                     this.y = 0;
@@ -16,6 +17,7 @@ System.register([], function(exports_1, context_1) {
                     this.x = _x;
                     this.y = _y;
                     this.type = tileData.type;
+                    this.key = tileData.key;
                     this.stage = _stage;
                     this.blocking = tileData.blocking;
                     if (tileData.pixiSpriteTexture) {

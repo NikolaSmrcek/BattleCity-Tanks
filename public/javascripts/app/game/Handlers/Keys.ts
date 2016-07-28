@@ -3,10 +3,8 @@
 export class Keys {
 
 	public static keys: any = {};
-
-	constructor() {
-
-	}
+	public static isSomeKeyPressed: boolean = false;
+	public static currentKeyPressed: any = null;
 
 	public static keyboard(keyCode: number) {
 		let key = {
@@ -23,19 +21,24 @@ export class Keys {
 		key.isDown = false;
 		key.isUp = true;
 		key.downHandler = (event) => {
-			if (event.keyCode === key.code) {
+			if (event.keyCode === key.code && (!this.currentKeyPressed || this.currentKeyPressed.code === key.code)) {
 				if (key.isUp && key.press) key.press();
 				key.isDown = true;
 				key.isUp = false;
+				this.currentKeyPressed = key;
+				this.isSomeKeyPressed = true;
 			}
 			event.preventDefault();
 		};
 
 		key.upHandler = (event) => {
-			if (event.keyCode === key.code) {
+			if (event.keyCode === key.code && ((this.currentKeyPressed.code === key.code))) {
+				//TODO test it maybe it needs some smoothing, example enable shooting and moving
 				if (key.isDown && key.release) key.release();
 				key.isDown = false;
 				key.isUp = true;
+				this.currentKeyPressed = null;
+				this.isSomeKeyPressed = false;
 			}
 			event.preventDefault();
 		};
@@ -49,7 +52,7 @@ export class Keys {
 		);
 
 		this.keys[keyCode] = key;
-		return key;
+		//return key;
 	}
 
 
