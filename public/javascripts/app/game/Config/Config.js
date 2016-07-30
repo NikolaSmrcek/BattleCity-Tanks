@@ -12,17 +12,21 @@ System.register([], function(exports_1, context_1) {
                 Config.gameHeight = 640;
                 Config.tileSize = 8;
                 Config.entityTileSize = 16;
+                Config.animationSpeed = 0.5;
                 Config.imageScale = 2;
+                Config.objectAnchor = 0.5;
                 Config.tileTypes = {
                     nothing: {
                         type: 0,
                         skip: true,
-                        blocking: false
+                        blocking: false,
+                        removable: false
                     },
                     greyWall: {
                         type: 1,
                         skip: false,
                         blocking: true,
+                        removable: false,
                         x: 384,
                         y: 0
                     },
@@ -30,6 +34,7 @@ System.register([], function(exports_1, context_1) {
                         type: 2,
                         skip: false,
                         blocking: true,
+                        removable: true,
                         x: 256,
                         y: 64
                     } //brick players can destroy it, can't pass it. - brick
@@ -42,66 +47,178 @@ System.register([], function(exports_1, context_1) {
                 Config.tankAnimations = {
                     yellow: {
                         small: {
-                            up: [[0, 0], [16, 0]],
-                            left: [[32, 0], [48, 0]],
-                            down: [[64, 0], [80, 0]],
-                            right: [[96, 0], [112, 0]]
+                            singleImage: {},
+                            animations: {
+                                up: {
+                                    coordinates: [[0, 0], [16, 0]],
+                                    loop: true
+                                },
+                                left: {
+                                    coordinates: [[32, 0], [48, 0]],
+                                    loop: true
+                                },
+                                down: {
+                                    coordinates: [[64, 0], [80, 0]],
+                                    loop: true
+                                },
+                                right: {
+                                    coordinates: [[96, 0], [112, 0]],
+                                    loop: true
+                                }
+                            }
                         }
                     },
                     grey: {
                         small: {
-                            up: [[128, 0], [144, 0]],
-                            left: [[160, 0], [176, 0]],
-                            down: [[192, 0], [208, 0]],
-                            right: [[224, 0], [240, 0]]
+                            singleImage: {},
+                            animations: {
+                                up: {
+                                    coordinates: [[128, 0], [144, 0]],
+                                    loop: true
+                                },
+                                left: {
+                                    coordinates: [[160, 0], [176, 0]],
+                                    loop: true
+                                },
+                                down: {
+                                    coordinates: [[192, 0], [208, 0]],
+                                    loop: true
+                                },
+                                right: {
+                                    coordinates: [[224, 0], [240, 0]],
+                                    loop: true
+                                }
+                            }
                         }
                     },
                     green: {
                         small: {
-                            up: [[0, 128], [16, 128]],
-                            left: [[32, 128], [48, 128]],
-                            down: [[64, 128], [80, 128]],
-                            right: [[96, 128], [112, 128]]
+                            singleImage: {},
+                            animations: {
+                                up: {
+                                    coordinates: [[0, 128], [16, 128]],
+                                    loop: true
+                                },
+                                left: {
+                                    coordinates: [[32, 128], [48, 128]],
+                                    loop: true
+                                },
+                                down: {
+                                    coordinates: [[64, 128], [80, 128]],
+                                    loop: true
+                                },
+                                right: {
+                                    coordinates: [[96, 128], [112, 128]],
+                                    loop: true
+                                }
+                            }
                         }
                     },
                     pink: {
                         small: {
-                            up: [[128, 128], [144, 128]],
-                            left: [[160, 128], [176, 128]],
-                            down: [[192, 128], [208, 128]],
-                            right: [[224, 128], [240, 128]]
+                            singleImage: {},
+                            animations: {
+                                up: {
+                                    coordinates: [[128, 128], [144, 128]],
+                                    loop: true
+                                },
+                                left: {
+                                    coordinates: [[160, 128], [176, 128]],
+                                    loop: true
+                                },
+                                down: {
+                                    coordinates: [[192, 128], [208, 128]],
+                                    loop: true
+                                },
+                                right: {
+                                    coordinates: [[224, 128], [240, 128]],
+                                    loop: true
+                                }
+                            }
                         }
                     }
                 };
-                Config.keyboard = {
-                    87: {
-                        action: "up"
+                Config.bulletAnimations = {
+                    singleImage: {
+                        up: {
+                            x: 323,
+                            y: 102,
+                            width: 3,
+                            height: 4
+                        },
+                        left: {
+                            x: 330,
+                            y: 102,
+                            width: 4,
+                            height: 3
+                        },
+                        down: {
+                            x: 339,
+                            y: 102,
+                            width: 3,
+                            height: 4
+                        },
+                        right: {
+                            x: 346,
+                            y: 102,
+                            width: 4,
+                            height: 3
+                        }
                     },
-                    119: {
-                        action: "up"
-                    },
-                    65: {
-                        action: "left"
-                    },
-                    97: {
-                        action: "left"
-                    },
-                    83: {
-                        action: "down"
-                    },
-                    115: {
-                        action: "down"
-                    },
-                    68: {
-                        action: "right"
-                    },
-                    100: {
-                        action: "right"
-                    },
-                    32: {
-                        action: "shoot"
+                    animations: {
+                        explosion: {
+                            coordinates: [[256, 128], [272, 128], [288, 128]],
+                            loop: false
+                        }
                     }
                 };
+                Config.keyboard = [
+                    {
+                        keyCode: 87,
+                        action: "up",
+                        moveAndAction: false
+                    },
+                    {
+                        keyCode: 119,
+                        action: "up",
+                        moveAndAction: false
+                    },
+                    {
+                        keyCode: 65,
+                        action: "left",
+                        moveAndAction: false
+                    },
+                    {
+                        keyCode: 97,
+                        action: "left",
+                        moveAndAction: false
+                    },
+                    {
+                        keyCode: 83,
+                        action: "down",
+                        moveAndAction: false
+                    },
+                    {
+                        keyCode: 115,
+                        action: "down",
+                        moveAndAction: false
+                    },
+                    {
+                        keyCode: 68,
+                        action: "right",
+                        moveAndAction: false
+                    },
+                    {
+                        keyCode: 100,
+                        action: "right",
+                        moveAndAction: false
+                    },
+                    {
+                        keyCode: 32,
+                        action: "shoot",
+                        moveAndAction: true
+                    }
+                ];
                 Config.gameBackgroundColour = 0x000000;
                 Config.demoMap = "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1|" +
                     "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1|" +

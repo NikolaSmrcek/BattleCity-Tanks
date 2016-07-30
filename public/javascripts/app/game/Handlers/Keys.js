@@ -8,22 +8,22 @@ System.register([], function(exports_1, context_1) {
             Keys = (function () {
                 function Keys() {
                 }
-                Keys.keyboard = function (keyCode) {
+                Keys.keyboard = function (_key) {
                     var _this = this;
                     var key = {
-                        code: null,
-                        isDown: null,
-                        isUp: null,
+                        code: parseInt(_key.keyCode, 10),
+                        name: _key.action,
+                        moveAndAction: _key.moveAndAction,
+                        isDown: false,
+                        isUp: true,
                         press: undefined,
                         release: undefined,
                         downHandler: undefined,
                         upHandler: undefined
                     };
-                    key.code = keyCode;
-                    key.isDown = false;
-                    key.isUp = true;
+                    //&& ((!this.currentKeyPressed || this.currentKeyPressed.code === key.code) || key.moveAndAction)
                     key.downHandler = function (event) {
-                        if (event.keyCode === key.code && (!_this.currentKeyPressed || _this.currentKeyPressed.code === key.code)) {
+                        if (event.keyCode === key.code && ((!_this.currentKeyPressed || _this.currentKeyPressed.code === key.code) || key.moveAndAction)) {
                             if (key.isUp && key.press)
                                 key.press();
                             key.isDown = true;
@@ -33,8 +33,9 @@ System.register([], function(exports_1, context_1) {
                         }
                         event.preventDefault();
                     };
+                    //&& ((this.currentKeyPressed.code === key.code) || key.moveAndAction )
                     key.upHandler = function (event) {
-                        if (event.keyCode === key.code && ((_this.currentKeyPressed.code === key.code))) {
+                        if (event.keyCode === key.code && ((_this.currentKeyPressed.code === key.code) || key.moveAndAction)) {
                             //TODO test it maybe it needs some smoothing, example enable shooting and moving
                             if (key.isDown && key.release)
                                 key.release();
@@ -47,7 +48,7 @@ System.register([], function(exports_1, context_1) {
                     };
                     window.addEventListener("keydown", key.downHandler.bind(key), false);
                     window.addEventListener("keyup", key.upHandler.bind(key), false);
-                    this.keys[keyCode] = key;
+                    this.keys[key.code] = key;
                     //return key;
                 };
                 Keys.keys = {};

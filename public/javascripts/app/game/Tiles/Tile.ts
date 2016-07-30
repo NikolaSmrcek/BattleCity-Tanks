@@ -3,21 +3,33 @@ declare var PIXI: any;
 export class Tile {
 
 	private pixiSprite: any = null; //PixiSprite
-	private type: any = null; //tip Tile-a
-	public key: string = null;
+
 	private stage: any = null; //stage - scene which holds the game
 	private x: number = 0;
 	private y: number = 0;
+	private tileData: any = null;
+	public mapRow: number = 0;
+	public mapColumn: number = 0;
+
+	/*
 	private blocking: boolean = true;
+	private removable: boolean = false;
+	private type: any = null; //tip Tile-a
+	public key: string = null;
+	*/
+	constructor(_stage, tileData, _x, _y, mapRow: number, mapColumn: number) {
 
-	constructor(_stage, tileData, _x, _y ) {
-
+		this.mapRow = mapRow;
+		this.mapColumn = mapColumn;
 		this.x = _x;
 		this.y = _y;
+		this.stage = _stage;
+		/*
 		this.type = tileData.type;
 		this.key = tileData.key;
-		this.stage = _stage;
 		this.blocking = tileData.blocking;
+		this.removable = tileData.removable;
+		*/
 		if (tileData.pixiSpriteTexture) {
 			this.pixiSprite = new PIXI.Sprite(tileData.pixiSpriteTexture);
 			this.pixiSprite.position.set(this.x, this.y);
@@ -30,6 +42,9 @@ export class Tile {
 			this.stage.addChild(graphics);
 			*/
 		}
+		//TODO check if this is potentional memory throtteling
+		//delete tileData.pixiSpriteTexture;
+		this.tileData = tileData.tileData;
 	}
 
 	private addImageToStage() {
@@ -45,17 +60,23 @@ export class Tile {
 	}
 
 	public getType() {
-		return this.type;
+		return this.tileData.type;
 	}
 
 	public isBlocking() {
-		return this.blocking;
+		//console.log("Tile data: ", this.tileData);
+		return (this.tileData !== null && typeof this.tileData !== "undefined") ? this.tileData.blocking : true;
+	}
+
+	public isRemovable() {
+		return (this.tileData !== null && typeof this.tileData !== "undefined") ? this.tileData.removable : true;
 	}
 
 	public destroyTile() {
 		this.removeImageFromStage();
 		this.pixiSprite = null;
-		this.type = null;
+		this.tileData = null;
+		this.stage = null;
 		delete this;
 	}
 

@@ -1,4 +1,4 @@
-System.register(['./MapObject', '../Config/Config', '../Handlers/Keys'], function(exports_1, context_1) {
+System.register(['./MapObject', '../Config/Config', '../Handlers/Keys', './Bullet'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __extends = (this && this.__extends) || function (d, b) {
@@ -6,7 +6,7 @@ System.register(['./MapObject', '../Config/Config', '../Handlers/Keys'], functio
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
-    var MapObject_1, Config_1, Keys_1;
+    var MapObject_1, Config_1, Keys_1, Bullet_1;
     var Tank;
     return {
         setters:[
@@ -18,6 +18,9 @@ System.register(['./MapObject', '../Config/Config', '../Handlers/Keys'], functio
             },
             function (Keys_1_1) {
                 Keys_1 = Keys_1_1;
+            },
+            function (Bullet_1_1) {
+                Bullet_1 = Bullet_1_1;
             }],
         execute: function() {
             Tank = (function (_super) {
@@ -30,10 +33,16 @@ System.register(['./MapObject', '../Config/Config', '../Handlers/Keys'], functio
                     this.tankColour = "";
                     this.tankType = "";
                     this.isMyTank = false;
+                    this.enemyTanks = null;
+                    this.bullets = null;
+                    //TODO change way or place to hold SpriteUtilites and texture
+                    this.pixiObject = null;
+                    this.pixiObject = pixiObject;
                     this.tankOwner = pixiObject.tankOwner || "";
                     this.tankColour = pixiObject.tankColour;
                     this.tankType = pixiObject.tankType;
                     this.isMyTank = pixiObject.isMyTank || false;
+                    this.bullets = new Array();
                     this.cwidth = Config_1.Config.entityTileSize * Config_1.Config.imageScale; //TODO check if * imageScale is neccesary
                     this.cheight = Config_1.Config.entityTileSize * Config_1.Config.imageScale;
                     //TODO TEST
@@ -43,15 +52,28 @@ System.register(['./MapObject', '../Config/Config', '../Handlers/Keys'], functio
                     this.setupTank(pixiObject);
                     this.setDirection(_direction);
                 }
+                Tank.prototype.checkObjects = function () {
+                    if (!(this.enemyTanks instanceof Array))
+                        return console.log("Enemy tanks are not array");
+                    for (var i = 0; i < this.enemyTanks.length; i++) {
+                        if (this.checkRectangleCollision(this.enemyTanks[i])) {
+                            this.dx = 0;
+                            this.dy = 0;
+                            this.xtemp = this.x;
+                            this.ytemp = this.y;
+                        }
+                    }
+                    //TODO CHECK if bullet hit any tank
+                };
                 //smoothing the movement
                 Tank.prototype.getNextPosition = function () {
-                    //TODO check if it works
                     if (this.isMyTank && !Keys_1.Keys.isSomeKeyPressed) {
                         this.dx = 0;
                         this.dy = 0;
                         return;
                     }
                     var maxSpeed = this.maxMovementSpeed;
+                    // && (Keys.currentKeyPressed && Keys.currentKeyPressed.name == "down")
                     if (this.directions["left"]) {
                         this.dx -= this.movementSpeed;
                         if (this.dx < -maxSpeed) {
@@ -106,23 +128,53 @@ System.register(['./MapObject', '../Config/Config', '../Handlers/Keys'], functio
                     }
                 }; //end of the function getNextPosition
                 Tank.prototype.setupTank = function (_pixiObject) {
-                    var tankFrameCoordinates = Config_1.Config.tankAnimations[_pixiObject.tankColour][_pixiObject.tankType], u = _pixiObject.u, texture = _pixiObject.texture;
-                    for (var key in tankFrameCoordinates) {
-                        var textures = u.frames(texture, tankFrameCoordinates[key], this.entityTileSize, this.entityTileSize);
-                        this.animations[key] = new PIXI.extras.MovieClip(textures);
-                        this.animations[key].anchor.set(0.5); //TODO change this to configuration
-                        this.animations[key].animationSpeed = 0.5; //TODO change this to configuration
-                        this.animations[key].visible = false;
-                        this.animations[key].position.set(this.x, this.y);
-                        this.animations[key].scale.set(this.imageScale);
-                        this.stage.addChild(this.animations[key]);
-                    }
+                    this.setupAnimations(_pixiObject.texture, Config_1.Config.tankAnimations[_pixiObject.tankColour][_pixiObject.tankType], _pixiObject.u);
+                };
+                Tank.prototype.getEnemys = function () {
+                    return this.enemyTanks;
+                };
+                Tank.prototype.setEnemys = function (_enemyTanks) {
+                    this.enemyTanks = _enemyTanks;
+                };
+                Tank.prototype.getBullets = function () {
+                    return this.bullets;
+                };
+                Tank.prototype.setBullets = function (_bullets) {
+                    this.bullets = _bullets;
+                };
+                Tank.prototype.addBullet = function () {
+                    //TODO mana or timedelay
+                    this.bullets.push(new Bullet_1.Bullet(this.tileMap, {
+                        stage: this.stage,
+                        u: this.pixiObject.u,
+                        texture: this.pixiObject.texture,
+                        tankOwner: this.tankOwner,
+                        isMyTank: this.isMyTank,
+                        x: this.x,
+                        y: this.y
+                    }, this.currentDirection));
                 };
                 Tank.prototype.animate = function () {
                     this.getNextPosition();
                     this.checkTileMapCollision();
+                    this.checkObjects();
                     this.setPosition(this.xtemp, this.ytemp);
-                };
+                    //Updating depending objects of parent
+                    //animate bullets
+                    for (var i = 0; i < this.bullets.length; i++) {
+                        if (this.bullets[i].isRemovable()) {
+                            //TODO delete Enemy
+                            this.bullets[i].safetlyRemove();
+                            delete this.bullets[i];
+                            this.bullets.splice(i, 1);
+                            i--;
+                        }
+                        else {
+                            this.bullets[i].animate();
+                        }
+                    }
+                    //stage children
+                }; //end of animate function
                 return Tank;
             }(MapObject_1.MapObject));
             exports_1("Tank", Tank);

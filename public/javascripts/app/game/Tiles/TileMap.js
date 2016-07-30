@@ -32,11 +32,11 @@ System.register(['../Config/Config', './Tile'], function(exports_1, context_1) {
                         var spriteTexture = tile.skip ? null : this.u.frame(texture, tile.x, tile.y, Config_1.Config.tileSize, Config_1.Config.tileSize);
                         this.tiles[key] = {
                             pixiSpriteTexture: spriteTexture,
-                            type: tile.type,
-                            blocking: tile.blocking,
+                            tileData: tile,
                             key: key
                         };
                     }
+                    console.log("Typed, ", this.tiles);
                 };
                 TileMap.prototype.loadMap = function (_map) {
                     _map = Config_1.Config.demoMap2; //TODO send it - no demo map
@@ -55,7 +55,6 @@ System.register(['../Config/Config', './Tile'], function(exports_1, context_1) {
                             this.addTile(row, column, Config_1.Config.tileTypesMapping[columns[column]]);
                         }
                     }
-                    console.log("Mapa nakon ucitavanja: ", this.map);
                 };
                 TileMap.prototype.isTile = function (mapRow, mapColumn) {
                     if (this.map[mapRow][mapColumn]) {
@@ -64,12 +63,35 @@ System.register(['../Config/Config', './Tile'], function(exports_1, context_1) {
                     return false;
                 };
                 TileMap.prototype.addTile = function (mapRow, mapColumn, tileType) {
-                    var y = parseInt((mapRow * Config_1.Config.tileSize).toString(), 10), x = parseInt((mapColumn * Config_1.Config.tileSize).toString(), 10), tile = new Tile_1.Tile(this.stage, this.tiles[tileType], x, y);
+                    var y = parseInt((mapRow * Config_1.Config.tileSize).toString(), 10), x = parseInt((mapColumn * Config_1.Config.tileSize).toString(), 10), tile = new Tile_1.Tile(this.stage, this.tiles[tileType], x, y, mapRow, mapColumn);
                     this.map[mapRow][mapColumn] = tile;
+                    //TODO remove this comment
+                    /*
                     if (tile.key == "brick") {
                         console.log("Added to map tile: ", tile, " row ", mapRow, " column ", mapColumn, " x ", x, " y ", y);
                     }
+                    */
                     //console.log("Added to map tile: ", tile, " row ", mapRow, " column ", mapColumn);
+                };
+                //we are replacing blocking tile with "nothing" tile, tile argument can be tile object or row
+                TileMap.prototype.removeTile = function (tile, column) {
+                    if (column === void 0) { column = null; }
+                    if (!tile && tile != 0)
+                        return console.log("Invalid tile object or row.");
+                    var tileObject = null, blocking = false;
+                    if (this.isTileBlocking(tile, column) && this.isTileRemovable(tile, column)) {
+                        if (typeof tile === "object") {
+                            tile.destroyTile();
+                            this.addTile(tile.mapRow, tile.mapColumn, "nothing");
+                        }
+                        else {
+                            this.map[tile][column].destroyTile();
+                            this.addTile(tile, column, "nothing");
+                        }
+                    }
+                    else {
+                        console.log("Tile allready is not blocking or non removable");
+                    }
                 };
                 TileMap.prototype.getNumRows = function () {
                     return this.numRows;
@@ -77,11 +99,45 @@ System.register(['../Config/Config', './Tile'], function(exports_1, context_1) {
                 TileMap.prototype.getNumCols = function () {
                     return this.numCols;
                 };
-                TileMap.prototype.isTileBlocking = function (row, column) {
-                    //console.log("Tile: ", this.map[row][column]);
-                    if (this.map[row][column].isBlocking) {
+                TileMap.prototype.getTile = function (row, column) {
+                    if (column === void 0) { column = null; }
+                    if (!row && row != 0)
+                        return console.log("Invalid tile object or row.");
+                    var tile = null;
+                    if (column != null) {
+                        tile = this.map[row][column];
                     }
-                    return this.map[row][column].isBlocking();
+                    else {
+                        tile = row;
+                    }
+                    return tile;
+                };
+                TileMap.prototype.isTileBlocking = function (row, column) {
+                    if (column === void 0) { column = null; }
+                    if (!row && row != 0)
+                        return console.log("Invalid tile object or row.");
+                    var blocking = false;
+                    if (column != null) {
+                        blocking = this.map[row][column].isBlocking();
+                    }
+                    else {
+                        //console.log("TILR: ", row);
+                        blocking = row.isBlocking();
+                    }
+                    return blocking;
+                };
+                TileMap.prototype.isTileRemovable = function (row, column) {
+                    if (column === void 0) { column = null; }
+                    if (!row && row != 0)
+                        return console.log("Invalid tile object or row.");
+                    var removable = false;
+                    if (column != null) {
+                        removable = this.map[row][column].isRemovable();
+                    }
+                    else {
+                        removable = row.isRemovable();
+                    }
+                    return removable;
                 };
                 return TileMap;
             }());
