@@ -33,11 +33,22 @@ System.register(['./MapObject', '../Config/Config', '../Handlers/Keys', './Bulle
                     this.tankColour = "";
                     this.tankType = "";
                     this.isMyTank = false;
+                    this.mana = 0;
+                    this.maxMana = 0;
+                    this.bulletManaCost = 0;
+                    this.healthPoints = 0;
+                    this.maximumHealthPoints = 0;
+                    //for disapearing effect
+                    this.flinching = false;
+                    this.flinchCounter = 0;
+                    this.flinchStop = 0;
+                    this.spawning = false;
                     this.enemyTanks = null;
                     this.bullets = null;
                     //TODO change way or place to hold SpriteUtilites and texture
                     this.pixiObject = null;
                     this.pixiObject = pixiObject;
+                    this.initialDirection = _direction;
                     this.tankOwner = pixiObject.tankOwner || "";
                     this.tankColour = pixiObject.tankColour;
                     this.tankType = pixiObject.tankType;
@@ -45,25 +56,52 @@ System.register(['./MapObject', '../Config/Config', '../Handlers/Keys', './Bulle
                     this.bullets = new Array();
                     this.cwidth = Config_1.Config.entityTileSize * Config_1.Config.imageScale; //TODO check if * imageScale is neccesary
                     this.cheight = Config_1.Config.entityTileSize * Config_1.Config.imageScale;
+                    this.flinchStop = Config_1.Config.flinchStop;
                     //TODO TEST
                     this.movementSpeed = 2;
                     this.maxMovementSpeed = 2;
                     this.slowingSpeed = 1;
                     this.setupTank(pixiObject);
-                    this.setDirection(_direction);
                 }
                 Tank.prototype.checkObjects = function () {
                     if (!(this.enemyTanks instanceof Array))
                         return console.log("Enemy tanks are not array");
                     for (var i = 0; i < this.enemyTanks.length; i++) {
-                        if (this.checkRectangleCollision(this.enemyTanks[i])) {
+                        //checking if any of the enemy tanks if colliding with our(my)Tank - if it is we stop the movement of our tank
+                        if (this.intersects(this.enemyTanks[i])) {
                             this.dx = 0;
                             this.dy = 0;
                             this.xtemp = this.x;
                             this.ytemp = this.y;
                         }
+                        //TODO checking if anyof my bullets hit enemyTank
+                        //bullet set removable
+                        for (var j = 0; j < this.bullets.length; j++) {
+                            //for loop where we check if the bullets collided, if they did just remove them - nothing happens
+                            for (var k = 0; k < this.enemyTanks[i].bullets.length; k++) {
+                                if (this.bullets[j].intersects(this.enemyTanks[i].bullets[k])) {
+                                    this.bullets[j].setRemove();
+                                    this.enemyTanks[i].bullets[k].setRemove();
+                                }
+                            }
+                            if (this.bullets[j].intersects(this.enemyTanks[i])) {
+                                //TODO add explosion animation to tank
+                                this.enemyTanks[i].setHit(this.bullets[j].getBulletDamage());
+                                this.bullets[j].setRemove();
+                                break;
+                            }
+                        }
+                    } //end of for loop enemyTanks
+                };
+                Tank.prototype.setHit = function (bulletDamage) {
+                    if (bulletDamage === void 0) { bulletDamage = 1; }
+                    //TODO notify others on hit
+                    if (this.flinching)
+                        return;
+                    this.healthPoints -= bulletDamage;
+                    if (this.healthPoints <= 0 && !this.flinching) {
+                        this.spawnTank();
                     }
-                    //TODO CHECK if bullet hit any tank
                 };
                 //smoothing the movement
                 Tank.prototype.getNextPosition = function () {
@@ -127,8 +165,52 @@ System.register(['./MapObject', '../Config/Config', '../Handlers/Keys', './Bulle
                         }
                     }
                 }; //end of the function getNextPosition
+                Tank.prototype.spawnTank = function (x, y) {
+                    if (x === void 0) { x = null; }
+                    if (y === void 0) { y = null; }
+                    //TODO REMOVE this way of working - we will always get from a server side position where we spawned - or we will notify others
+                    var respawnX = x || this.initialX;
+                    var respawnY = y || this.initialY;
+                    this.bulletManaCost = Config_1.Config.bulletManaCost;
+                    this.maxMana = Config_1.Config.maxTankMana;
+                    this.mana = this.maxMana;
+                    this.healthPoints = Config_1.Config.tankHealthPoints;
+                    this.maximumHealthPoints = Config_1.Config.maximumTankHealthPoints;
+                    this.flinching = true;
+                    this.flinchCounter = 0;
+                    this.setPosition(respawnX, respawnY);
+                    this.setAnimation("spawn");
+                };
+                Tank.prototype.checkFlinching = function () {
+                    //checking if flicnking and updateing counter
+                    if (this.flinching) {
+                        this.flinchCounter++;
+                        if (this.flinchCounter > this.flinchStop) {
+                            this.flinching = false;
+                        }
+                        //if it is still flinching we are checking shall we display the surroundings or not
+                        if (this.flinching) {
+                            if (this.flinchCounter % 10 < 5) {
+                                //TODO add anohter "white" animation around tank that is constantly on
+                                this.currentAnimation.visible = false;
+                            }
+                            else {
+                                this.currentAnimation.visible = true;
+                            }
+                        }
+                        else {
+                            //flinching is over return this tank to visible
+                            this.currentAnimation.visible = true;
+                        }
+                    }
+                };
                 Tank.prototype.setupTank = function (_pixiObject) {
+                    var _this = this;
                     this.setupAnimations(_pixiObject.texture, Config_1.Config.tankAnimations[_pixiObject.tankColour][_pixiObject.tankType], _pixiObject.u);
+                    this.animations["spawn"].onComplete = function () {
+                        _this.setDirection(_this.initialDirection);
+                    };
+                    this.spawnTank();
                 };
                 Tank.prototype.getEnemys = function () {
                     return this.enemyTanks;
@@ -144,15 +226,18 @@ System.register(['./MapObject', '../Config/Config', '../Handlers/Keys', './Bulle
                 };
                 Tank.prototype.addBullet = function () {
                     //TODO mana or timedelay
-                    this.bullets.push(new Bullet_1.Bullet(this.tileMap, {
-                        stage: this.stage,
-                        u: this.pixiObject.u,
-                        texture: this.pixiObject.texture,
-                        tankOwner: this.tankOwner,
-                        isMyTank: this.isMyTank,
-                        x: this.x,
-                        y: this.y
-                    }, this.currentDirection));
+                    if (this.mana >= this.bulletManaCost) {
+                        this.mana -= this.bulletManaCost;
+                        this.bullets.push(new Bullet_1.Bullet(this.tileMap, {
+                            stage: this.stage,
+                            u: this.pixiObject.u,
+                            texture: this.pixiObject.texture,
+                            tankOwner: this.tankOwner,
+                            isMyTank: this.isMyTank,
+                            x: this.x,
+                            y: this.y
+                        }, this.currentDirection));
+                    }
                 };
                 Tank.prototype.animate = function () {
                     this.getNextPosition();
@@ -173,7 +258,11 @@ System.register(['./MapObject', '../Config/Config', '../Handlers/Keys', './Bulle
                             this.bullets[i].animate();
                         }
                     }
-                    //stage children
+                    //Updejting mana for bullets
+                    this.mana += Config_1.Config.manaPerFPS;
+                    if (this.mana > this.maxMana)
+                        this.mana = this.maxMana;
+                    this.checkFlinching();
                 }; //end of animate function
                 return Tank;
             }(MapObject_1.MapObject));

@@ -79,7 +79,7 @@ System.register(['../Config/Config', './Tile'], function(exports_1, context_1) {
                     if (!tile && tile != 0)
                         return console.log("Invalid tile object or row.");
                     var tileObject = null, blocking = false;
-                    if (this.isTileBlocking(tile, column) && this.isTileRemovable(tile, column)) {
+                    if (this.isTileBulletBlocking(tile, column) && this.isTileRemovable(tile, column)) {
                         if (typeof tile === "object") {
                             tile.destroyTile();
                             this.addTile(tile.mapRow, tile.mapColumn, "nothing");
@@ -121,8 +121,21 @@ System.register(['../Config/Config', './Tile'], function(exports_1, context_1) {
                         blocking = this.map[row][column].isBlocking();
                     }
                     else {
-                        //console.log("TILR: ", row);
                         blocking = row.isBlocking();
+                    }
+                    return blocking;
+                };
+                TileMap.prototype.isTileBulletBlocking = function (row, column) {
+                    if (column === void 0) { column = null; }
+                    if (!row && row != 0)
+                        return console.log("Invalid tile object or row.");
+                    var blocking = false;
+                    if (column != null) {
+                        blocking = this.map[row][column].isBulletBlocking();
+                    }
+                    else {
+                        //console.log("TILR: ", row);
+                        blocking = row.isBulletBlocking();
                     }
                     return blocking;
                 };

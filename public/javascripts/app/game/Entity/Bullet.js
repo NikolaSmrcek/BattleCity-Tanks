@@ -25,9 +25,11 @@ System.register(['../Config/Config', './MapObject'], function(exports_1, context
                     this.isMyTank = false;
                     this.hit = false;
                     this.remove = false;
+                    this.bulletDamage = 0;
                     this.tankOwner = pixiObject.tankOwner || "";
                     this.isMyTank = pixiObject.isMyTank || false;
                     this.movementSpeed = 5;
+                    this.bulletDamage = Config_1.Config.bulletDamage;
                     this.setupBullet(pixiObject);
                     this.setDirection(_direction);
                     this.calculateVelocity();
@@ -37,7 +39,7 @@ System.register(['../Config/Config', './MapObject'], function(exports_1, context
                     this.setupAnimations(_pixiObject.texture, Config_1.Config.bulletAnimations, _pixiObject.u);
                     this.animations["explosion"].onComplete = function () {
                         _this.setRemove();
-                    }; //TODO set remove to True
+                    };
                     //console.log("This animations[explosion] bullet: ", this.animations["explosion"]);
                 };
                 Bullet.prototype.calculateVelocity = function () {
@@ -56,6 +58,17 @@ System.register(['../Config/Config', './MapObject'], function(exports_1, context
                             break;
                         default: console.log("Unknown direction: ", this.currentDirection);
                     }
+                };
+                Bullet.prototype.getBulletDamage = function () {
+                    return this.bulletDamage;
+                };
+                Bullet.prototype.setBulletDamage = function (bulletDamage) {
+                    if (bulletDamage === void 0) { bulletDamage = 1; }
+                    this.bulletDamage = bulletDamage;
+                };
+                Bullet.prototype.incrementBulletDamage = function (bulletDamage) {
+                    if (bulletDamage === void 0) { bulletDamage = 1; }
+                    this.bulletDamage += bulletDamage;
                 };
                 Bullet.prototype.isHit = function () {
                     return this.hit;

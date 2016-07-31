@@ -141,6 +141,12 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                     //this.animate.bind(this) jer callback izgubi referencu
                     requestAnimationFrame(this.animate.bind(this));
                     this.myTank.animate();
+                    //animate other tanks also
+                    /*
+                    for ( let i = 0; i < this.enemyTanks.length; i++){
+                        this.enemyTanks[i].animate();
+                    }
+                    */
                     // render the container
                     this.renderer.render(this.stage);
                 };

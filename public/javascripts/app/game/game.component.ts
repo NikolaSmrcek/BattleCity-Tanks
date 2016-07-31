@@ -144,7 +144,12 @@ export class GameComponent {
         requestAnimationFrame(this.animate.bind(this));
 
         this.myTank.animate();
-
+        //animate other tanks also
+        /*
+        for ( let i = 0; i < this.enemyTanks.length; i++){
+            this.enemyTanks[i].animate();
+        }
+        */
         // render the container
         this.renderer.render(this.stage);
     }

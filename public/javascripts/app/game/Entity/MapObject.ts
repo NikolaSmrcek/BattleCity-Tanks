@@ -25,6 +25,10 @@ export class MapObject {
 	protected dx: number = 0;
 	protected dy: number = 0;
 
+	protected initialX: number = 0;
+	protected initialY: number = 0;
+	protected initialDirection: string = "";
+
 	//movement
 	protected movementSpeed: number = 0;
 	protected maxMovementSpeed: number = 0;
@@ -61,6 +65,9 @@ export class MapObject {
 		//TODO rethink where and how to put initial positioning
 		this.x = _pixiObject.x;
 		this.y = _pixiObject.y;
+
+		this.initialX = this.x;
+		this.initialY = this.y;
 
 		this.stage = _pixiObject.stage;
 		this.imageScale = Config.imageScale;
@@ -120,7 +127,7 @@ export class MapObject {
 
 
 	//used for checking collision between various game objects
-	public checkRectangleCollision(o1: any, o2: any = this) {
+	public intersects(o1: any, o2: any = this) {
 		let hit = false,
 			combinedHalfWidths,
 			combinedHalfHeights,
@@ -273,6 +280,11 @@ export class MapObject {
 		this.dy = dy;
 	}
 
+	public setupFlinchAnimation(texture, coordinates, u) {
+		if (Object.keys(coordinates).length === 0 && coordinates.constructor === Object) return console.log("Coordinates are empty object.");
+
+	}
+
 	public setupAnimations(texture, coordinates, u) {
 		if (Object.keys(coordinates).length === 0 && coordinates.constructor === Object) return console.log("Coordinates are empty object.");
 		for (let k in coordinates) {
@@ -298,7 +310,7 @@ export class MapObject {
 				this.animations[key].collisionHeight = height * this.imageScale;
 				this.animations[key].anchor.set(Config.objectAnchor); //TODO change this to configuration
 				this.animations[key].animationSpeed = action.animationSpeed || Config.animationSpeed; //TODO change this to configuration
-				this.animations[key].visible = false;;
+				this.animations[key].visible = false;
 				this.animations[key].loop = (typeof action.loop !== "undefined") ? action.loop : true;
 				this.animations[key].position.set(this.x, this.y);
 				this.animations[key].scale.set(this.imageScale);
@@ -313,6 +325,7 @@ export class MapObject {
 			this.stage.removeChild(this.animations[key]);
 			delete this.animations[key];
 		}
+		this.animations = {};
 	}
 
 	protected removeTileFromMap(tile: any, column: number = null) {

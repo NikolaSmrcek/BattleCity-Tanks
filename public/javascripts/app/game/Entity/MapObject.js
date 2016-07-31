@@ -29,6 +29,9 @@ System.register(['../Config/Config'], function(exports_1, context_1) {
                     this.y = 0;
                     this.dx = 0;
                     this.dy = 0;
+                    this.initialX = 0;
+                    this.initialY = 0;
+                    this.initialDirection = "";
                     //movement
                     this.movementSpeed = 0;
                     this.maxMovementSpeed = 0;
@@ -57,6 +60,8 @@ System.register(['../Config/Config'], function(exports_1, context_1) {
                     //TODO rethink where and how to put initial positioning
                     this.x = _pixiObject.x;
                     this.y = _pixiObject.y;
+                    this.initialX = this.x;
+                    this.initialY = this.y;
                     this.stage = _pixiObject.stage;
                     this.imageScale = Config_1.Config.imageScale;
                     this.mapTileSize = Config_1.Config.tileSize;
@@ -108,7 +113,7 @@ System.register(['../Config/Config'], function(exports_1, context_1) {
                     */
                 };
                 //used for checking collision between various game objects
-                MapObject.prototype.checkRectangleCollision = function (o1, o2) {
+                MapObject.prototype.intersects = function (o1, o2) {
                     if (o2 === void 0) { o2 = this; }
                     var hit = false, combinedHalfWidths, combinedHalfHeights, vx, vy;
                     //we use anchor 0.5 in Config that's why we don't calculate center X and center Y, our x and y is allready centered
@@ -238,6 +243,10 @@ System.register(['../Config/Config'], function(exports_1, context_1) {
                     this.dx = dx;
                     this.dy = dy;
                 };
+                MapObject.prototype.setupFlinchAnimation = function (texture, coordinates, u) {
+                    if (Object.keys(coordinates).length === 0 && coordinates.constructor === Object)
+                        return console.log("Coordinates are empty object.");
+                };
                 MapObject.prototype.setupAnimations = function (texture, coordinates, u) {
                     if (Object.keys(coordinates).length === 0 && coordinates.constructor === Object)
                         return console.log("Coordinates are empty object.");
@@ -254,7 +263,6 @@ System.register(['../Config/Config'], function(exports_1, context_1) {
                             this.animations[key].anchor.set(Config_1.Config.objectAnchor); //TODO change this to configuration
                             this.animations[key].animationSpeed = action.animationSpeed || Config_1.Config.animationSpeed; //TODO change this to configuration
                             this.animations[key].visible = false;
-                            ;
                             this.animations[key].loop = (typeof action.loop !== "undefined") ? action.loop : true;
                             this.animations[key].position.set(this.x, this.y);
                             this.animations[key].scale.set(this.imageScale);
@@ -267,6 +275,7 @@ System.register(['../Config/Config'], function(exports_1, context_1) {
                         this.stage.removeChild(this.animations[key]);
                         delete this.animations[key];
                     }
+                    this.animations = {};
                 };
                 MapObject.prototype.removeTileFromMap = function (tile, column) {
                     if (column === void 0) { column = null; }

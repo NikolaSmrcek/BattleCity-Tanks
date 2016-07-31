@@ -31,7 +31,7 @@ export class Keys {
 		};
 		//&& ((this.currentKeyPressed.code === key.code) || key.moveAndAction )
 		key.upHandler = (event) => {
-			if (event.keyCode === key.code && ((this.currentKeyPressed.code === key.code) || key.moveAndAction )) {
+			if (event.keyCode === key.code && ((this.currentKeyPressed && this.currentKeyPressed.code === key.code) || key.moveAndAction )) {
 				//TODO test it maybe it needs some smoothing, example enable shooting and moving
 				if (key.isDown && key.release) key.release();
 				key.isDown = false;

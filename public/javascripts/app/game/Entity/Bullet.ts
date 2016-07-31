@@ -8,12 +8,15 @@ export class Bullet extends MapObject {
 	public hit: boolean = false;
 	public remove: boolean = false;
 
+	public bulletDamage: number = 0;
+
 	constructor(_tileMap: any, pixiObject: any, _direction: string) {
 		super(_tileMap, pixiObject, null, true);
 		this.tankOwner = pixiObject.tankOwner || "";
 		this.isMyTank = pixiObject.isMyTank || false;
 
 		this.movementSpeed = 5;
+		this.bulletDamage = Config.bulletDamage;
 
 		this.setupBullet(pixiObject);
 		this.setDirection(_direction);
@@ -24,7 +27,7 @@ export class Bullet extends MapObject {
 		this.setupAnimations(_pixiObject.texture, Config.bulletAnimations, _pixiObject.u);
 		this.animations["explosion"].onComplete = () => {
 			this.setRemove();
-		}; //TODO set remove to True
+		};
 		//console.log("This animations[explosion] bullet: ", this.animations["explosion"]);
 	}
 
@@ -44,6 +47,18 @@ export class Bullet extends MapObject {
 				break;
 			default: console.log("Unknown direction: ", this.currentDirection);
 		}
+	}
+
+	public getBulletDamage(){
+		return this.bulletDamage;
+	}
+
+	public setBulletDamage(bulletDamage:number = 1){
+		this.bulletDamage = bulletDamage;
+	}
+
+	public incrementBulletDamage(bulletDamage:number = 1){
+		this.bulletDamage += bulletDamage;
 	}
 
 	public isHit() {

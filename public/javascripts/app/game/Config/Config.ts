@@ -1,28 +1,40 @@
+//TODO - rethink what can be on serverside
 export class Config {
-
+	//GAMEPANEL
 	public static gameWidth: number = 640;
 	public static gameHeight: number = 640;
+	public static gameBackgroundColour: number = 0x000000;
+	//PIXI
+	public static animationSpeed: number = 0.5;
+	public static imageScale: number = 2;
+	public static objectAnchor: number = 0.5;
+	//TANK
+	public static maxTankMana: number = 11;
+	public static manaPerFPS: number = 0.05;
+	public static bulletManaCost: number = 5;
+	public static tankHealthPoints: number = 1;
+	public static maximumTankHealthPoints: number = 1;
+	public static flinchStop: number = 120;
 
+	//BULLET
+	public static bulletDamage: number = 1;
+
+	//TILES
 	public static tileSize: number = 8;
 	public static entityTileSize: number = 16;
-
-	public static animationSpeed: number = 0.5;
-
-	public static imageScale: number = 2;
-
-	public static objectAnchor: number = 0.5;
-
 	public static tileTypes: any = {
 		nothing: {
 			type: 0,
 			skip: true,
 			blocking: false,
+			bulletBlocking: false,
 			removable: false
 		},  //black, nothing is painting - air
 		greyWall: {
 			type: 1,
 			skip: false,
 			blocking: true,
+			bulletBlocking: true,
 			removable: false,
 			x: 384,
 			y: 0
@@ -31,18 +43,19 @@ export class Config {
 			type: 2,
 			skip: false,
 			blocking: true,
+			bulletBlocking: true,
 			removable: true,
 			x: 256,
 			y: 64
 		} //brick players can destroy it, can't pass it. - brick
 	};
-
+	//MAPPING - used when reading the map
 	public static tileTypesMapping: any = {
 		"0": "nothing",
 		"1": "greyWall",
 		"2": "brick"
 	};
-
+	//Tank animations - for pixi
 	public static tankAnimations: any = {
 		yellow: {
 			small: {
@@ -63,6 +76,11 @@ export class Config {
 					right: {
 						coordinates: [[96, 0], [112, 0]],
 						loop: true
+					},
+					spawn: {
+						coordinates: [[256, 96], [272, 96], [288, 96], [304, 96]],
+						loop: false,
+						animationSpeed: 0.1
 					}
 				}
 			}
@@ -86,6 +104,11 @@ export class Config {
 					right: {
 						coordinates: [[224, 0], [240, 0]],
 						loop: true
+					},
+					spawn: {
+						coordinates: [[256, 96], [272, 96], [288, 96], [304, 96]],
+						loop: false,
+						animationSpeed: 0.1
 					}
 				}
 			}
@@ -109,6 +132,11 @@ export class Config {
 					right: {
 						coordinates: [[96, 128], [112, 128]],
 						loop: true
+					},
+					spawn: {
+						coordinates: [[256, 96], [272, 96], [288, 96], [304, 96]],
+						loop: false,
+						animationSpeed: 0.1
 					}
 				}
 			}
@@ -132,12 +160,17 @@ export class Config {
 					right: {
 						coordinates: [[224, 128], [240, 128]],
 						loop: true
+					},
+					spawn: {
+						coordinates: [[256, 96], [272, 96], [288, 96], [304, 96]],
+						loop: false,
+						animationSpeed: 0.1
 					}
 				}
 			}
 		}
 	};
-
+	//BUllet animations - used for pixi
 	public static bulletAnimations: any = {
 		singleImage: {
 			up: {
@@ -173,6 +206,16 @@ export class Config {
 		}
 	};
 
+	public static gameAssets: any = {
+		singleImage: {
+
+		},
+		animations: {
+
+		}
+	};
+
+	//keyboard settings - used for character input
 	public static keyboard: any = [
 		{
 			keyCode: 87,
@@ -221,10 +264,25 @@ export class Config {
 		}
 
 	];
+	//Spawn locations - used for respawning tanks
+	public static demoMap2SpawnLocations: any = [
+		{
+			x: 250,
+			y: 450
+		},
+		{
+			x: 500,
+			y: 500
+		}, {
+			x: 100,
+			y: 100
+		}, {
+			x: 300,
+			y: 300
+		}
+	];
 
-
-	public static gameBackgroundColour: number = 0x000000;
-
+	//DemoMaps
 	public static demoMap: string = "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1|" +
 	"1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1|" +
 	"1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1|" +

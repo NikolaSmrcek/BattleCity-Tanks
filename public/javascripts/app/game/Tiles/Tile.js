@@ -62,6 +62,9 @@ System.register([], function(exports_1, context_1) {
                 Tile.prototype.isRemovable = function () {
                     return (this.tileData !== null && typeof this.tileData !== "undefined") ? this.tileData.removable : true;
                 };
+                Tile.prototype.isBulletBlocking = function () {
+                    return (this.tileData !== null && typeof this.tileData !== "undefined") ? this.tileData.bulletBlocking : true;
+                };
                 Tile.prototype.destroyTile = function () {
                     this.removeImageFromStage();
                     this.pixiSprite = null;

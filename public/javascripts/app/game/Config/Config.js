@@ -5,27 +5,43 @@ System.register([], function(exports_1, context_1) {
     return {
         setters:[],
         execute: function() {
+            //TODO - rethink what can be on serverside
             Config = (function () {
                 function Config() {
                 }
+                //GAMEPANEL
                 Config.gameWidth = 640;
                 Config.gameHeight = 640;
-                Config.tileSize = 8;
-                Config.entityTileSize = 16;
+                Config.gameBackgroundColour = 0x000000;
+                //PIXI
                 Config.animationSpeed = 0.5;
                 Config.imageScale = 2;
                 Config.objectAnchor = 0.5;
+                //TANK
+                Config.maxTankMana = 11;
+                Config.manaPerFPS = 0.05;
+                Config.bulletManaCost = 5;
+                Config.tankHealthPoints = 1;
+                Config.maximumTankHealthPoints = 1;
+                Config.flinchStop = 120;
+                //BULLET
+                Config.bulletDamage = 1;
+                //TILES
+                Config.tileSize = 8;
+                Config.entityTileSize = 16;
                 Config.tileTypes = {
                     nothing: {
                         type: 0,
                         skip: true,
                         blocking: false,
+                        bulletBlocking: false,
                         removable: false
                     },
                     greyWall: {
                         type: 1,
                         skip: false,
                         blocking: true,
+                        bulletBlocking: true,
                         removable: false,
                         x: 384,
                         y: 0
@@ -34,16 +50,19 @@ System.register([], function(exports_1, context_1) {
                         type: 2,
                         skip: false,
                         blocking: true,
+                        bulletBlocking: true,
                         removable: true,
                         x: 256,
                         y: 64
                     } //brick players can destroy it, can't pass it. - brick
                 };
+                //MAPPING - used when reading the map
                 Config.tileTypesMapping = {
                     "0": "nothing",
                     "1": "greyWall",
                     "2": "brick"
                 };
+                //Tank animations - for pixi
                 Config.tankAnimations = {
                     yellow: {
                         small: {
@@ -64,6 +83,11 @@ System.register([], function(exports_1, context_1) {
                                 right: {
                                     coordinates: [[96, 0], [112, 0]],
                                     loop: true
+                                },
+                                spawn: {
+                                    coordinates: [[256, 96], [272, 96], [288, 96], [304, 96]],
+                                    loop: false,
+                                    animationSpeed: 0.1
                                 }
                             }
                         }
@@ -87,6 +111,11 @@ System.register([], function(exports_1, context_1) {
                                 right: {
                                     coordinates: [[224, 0], [240, 0]],
                                     loop: true
+                                },
+                                spawn: {
+                                    coordinates: [[256, 96], [272, 96], [288, 96], [304, 96]],
+                                    loop: false,
+                                    animationSpeed: 0.1
                                 }
                             }
                         }
@@ -110,6 +139,11 @@ System.register([], function(exports_1, context_1) {
                                 right: {
                                     coordinates: [[96, 128], [112, 128]],
                                     loop: true
+                                },
+                                spawn: {
+                                    coordinates: [[256, 96], [272, 96], [288, 96], [304, 96]],
+                                    loop: false,
+                                    animationSpeed: 0.1
                                 }
                             }
                         }
@@ -133,11 +167,17 @@ System.register([], function(exports_1, context_1) {
                                 right: {
                                     coordinates: [[224, 128], [240, 128]],
                                     loop: true
+                                },
+                                spawn: {
+                                    coordinates: [[256, 96], [272, 96], [288, 96], [304, 96]],
+                                    loop: false,
+                                    animationSpeed: 0.1
                                 }
                             }
                         }
                     }
                 };
+                //BUllet animations - used for pixi
                 Config.bulletAnimations = {
                     singleImage: {
                         up: {
@@ -172,6 +212,11 @@ System.register([], function(exports_1, context_1) {
                         }
                     }
                 };
+                Config.gameAssets = {
+                    singleImage: {},
+                    animations: {}
+                };
+                //keyboard settings - used for character input
                 Config.keyboard = [
                     {
                         keyCode: 87,
@@ -219,7 +264,24 @@ System.register([], function(exports_1, context_1) {
                         moveAndAction: true
                     }
                 ];
-                Config.gameBackgroundColour = 0x000000;
+                //Spawn locations - used for respawning tanks
+                Config.demoMap2SpawnLocations = [
+                    {
+                        x: 250,
+                        y: 450
+                    },
+                    {
+                        x: 500,
+                        y: 500
+                    }, {
+                        x: 100,
+                        y: 100
+                    }, {
+                        x: 300,
+                        y: 300
+                    }
+                ];
+                //DemoMaps
                 Config.demoMap = "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1|" +
                     "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1|" +
                     "1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1|" +

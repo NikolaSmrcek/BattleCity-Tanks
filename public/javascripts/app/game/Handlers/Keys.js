@@ -35,7 +35,7 @@ System.register([], function(exports_1, context_1) {
                     };
                     //&& ((this.currentKeyPressed.code === key.code) || key.moveAndAction )
                     key.upHandler = function (event) {
-                        if (event.keyCode === key.code && ((_this.currentKeyPressed.code === key.code) || key.moveAndAction)) {
+                        if (event.keyCode === key.code && ((_this.currentKeyPressed && _this.currentKeyPressed.code === key.code) || key.moveAndAction)) {
                             //TODO test it maybe it needs some smoothing, example enable shooting and moving
                             if (key.isDown && key.release)
                                 key.release();

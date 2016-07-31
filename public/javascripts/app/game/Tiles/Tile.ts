@@ -72,6 +72,10 @@ export class Tile {
 		return (this.tileData !== null && typeof this.tileData !== "undefined") ? this.tileData.removable : true;
 	}
 
+	public isBulletBlocking(){
+		return (this.tileData !== null && typeof this.tileData !== "undefined") ? this.tileData.bulletBlocking : true;
+	}
+
 	public destroyTile() {
 		this.removeImageFromStage();
 		this.pixiSprite = null;

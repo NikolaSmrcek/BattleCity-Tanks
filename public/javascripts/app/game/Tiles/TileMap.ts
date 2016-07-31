@@ -77,13 +77,13 @@ export class TileMap {
 		if (!tile && tile != 0) return console.log("Invalid tile object or row.");
 		let tileObject = null,
 			blocking = false;
-		if (this.isTileBlocking(tile, column) && this.isTileRemovable(tile, column)) {
+		if (this.isTileBulletBlocking(tile, column) && this.isTileRemovable(tile, column)) {
 			if (typeof tile === "object") {
 				tile.destroyTile();
 				this.addTile(tile.mapRow, tile.mapColumn, "nothing");
 			} else {
-				this.map[tile][column].destroyTile(); 
-				this.addTile(tile, column, "nothing"); 
+				this.map[tile][column].destroyTile();
+				this.addTile(tile, column, "nothing");
 			}
 		}
 		else {
@@ -118,8 +118,21 @@ export class TileMap {
 			blocking = this.map[row][column].isBlocking();
 		}
 		else {
-			//console.log("TILR: ", row);
 			blocking = row.isBlocking();
+		}
+
+		return blocking;
+	}
+
+	public isTileBulletBlocking(row: any, column: number = null): any {
+		if (!row && row != 0) return console.log("Invalid tile object or row.");
+		let blocking = false;
+		if (column != null) {
+			blocking = this.map[row][column].isBulletBlocking();
+		}
+		else {
+			//console.log("TILR: ", row);
+			blocking = row.isBulletBlocking();
 		}
 
 		return blocking;
