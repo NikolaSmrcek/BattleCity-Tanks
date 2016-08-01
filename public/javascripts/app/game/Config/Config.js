@@ -88,6 +88,13 @@ System.register([], function(exports_1, context_1) {
                                     coordinates: [[256, 96], [272, 96], [288, 96], [304, 96]],
                                     loop: false,
                                     animationSpeed: 0.1
+                                },
+                                explosion: {
+                                    coordinates: [[304, 128], [336, 128]],
+                                    loop: false,
+                                    animationSpeed: 0.3,
+                                    width: 32,
+                                    height: 32
                                 }
                             }
                         }
@@ -116,6 +123,13 @@ System.register([], function(exports_1, context_1) {
                                     coordinates: [[256, 96], [272, 96], [288, 96], [304, 96]],
                                     loop: false,
                                     animationSpeed: 0.1
+                                },
+                                explosion: {
+                                    coordinates: [[304, 128], [336, 128]],
+                                    loop: false,
+                                    animationSpeed: 0.3,
+                                    width: 32,
+                                    height: 32
                                 }
                             }
                         }
@@ -144,6 +158,13 @@ System.register([], function(exports_1, context_1) {
                                     coordinates: [[256, 96], [272, 96], [288, 96], [304, 96]],
                                     loop: false,
                                     animationSpeed: 0.1
+                                },
+                                explosion: {
+                                    coordinates: [[304, 128], [336, 128]],
+                                    loop: false,
+                                    animationSpeed: 0.3,
+                                    width: 32,
+                                    height: 32
                                 }
                             }
                         }
@@ -172,6 +193,13 @@ System.register([], function(exports_1, context_1) {
                                     coordinates: [[256, 96], [272, 96], [288, 96], [304, 96]],
                                     loop: false,
                                     animationSpeed: 0.1
+                                },
+                                explosion: {
+                                    coordinates: [[304, 128], [336, 128]],
+                                    loop: false,
+                                    animationSpeed: 0.3,
+                                    width: 32,
+                                    height: 32
                                 }
                             }
                         }

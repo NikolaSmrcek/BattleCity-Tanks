@@ -41,6 +41,9 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                     this.u = null;
                     this.tileMap = null;
                     this.myTank = null;
+                    //TODO  - from socket
+                    this.gameOver = false;
+                    this.userName = "kanta";
                     this.enemyTanks = null;
                     //TODO reorganize
                     this.renderer = PIXI.autoDetectRenderer(Config_1.Config.gameWidth, Config_1.Config.gameHeight, { backgroundColor: Config_1.Config.gameBackgroundColour });
@@ -58,36 +61,13 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                     this.tileMap = new TileMap_1.TileMap(this.stage, this.u);
                     this.tileMap.loadTiles(resources.gameTileSet.texture);
                     this.tileMap.loadMap(""); //TODO get map from socket
-                    this.myTank = new Tank_1.Tank(this.tileMap, {
-                        stage: this.stage,
-                        texture: resources.gameTileSet.texture,
-                        u: this.u,
-                        tankColour: "green",
-                        tankType: "small",
-                        tankOwner: "kanta",
-                        isMyTank: true,
-                        x: 250,
-                        y: 450
-                    }, "right");
                     //TODO make tanks from data that come from socket
-                    var tanks = [{ tankColour: "yellow", tankType: "small", tankOwner: "RANDOM", x: 500, y: 500 },
-                        { tankColour: "grey", tankType: "small", tankOwner: "RANDOM", x: 100, y: 100 },
-                        { tankColour: "pink", tankType: "small", tankOwner: "RANDOM", x: 300, y: 300 }];
-                    //let tanks = [{ tankColour: "yellow", tankType: "small", tankOwner: "RANDOM", x: 500, y: 500 }];
-                    for (var i = 0; i < tanks.length; i++) {
-                        this.enemyTanks.push(new Tank_1.Tank(this.tileMap, {
-                            stage: this.stage,
-                            texture: resources.gameTileSet.texture,
-                            u: this.u,
-                            tankColour: tanks[i].tankColour,
-                            tankType: tanks[i].tankType,
-                            tankOwner: tanks[i].tankOwner + i,
-                            isMyTank: false,
-                            x: tanks[i].x,
-                            y: tanks[i].y
-                        }, "left"));
-                    }
-                    this.myTank.setEnemys(this.enemyTanks);
+                    var tanks = [{ tankColour: "yellow", tankType: "small", tankOwner: "RANDOM12", isMyTank: false, x: 500, y: 500, direction: "left" },
+                        { tankColour: "grey", tankType: "small", tankOwner: "RANDOM2", isMyTank: false, x: 100, y: 100, direction: "left" },
+                        { tankColour: "pink", tankType: "small", tankOwner: "RANDOM3", isMyTank: false, x: 300, y: 300, direction: "left" },
+                        { tankColour: "green", tankType: "small", tankOwner: "kanta", isMyTank: true, x: 250, y: 450, direction: "right" }];
+                    this.registerTanks(tanks, resources.gameTileSet.texture);
+                    //TODO removeIdle on first socket for each tank
                     //Registrating all sockets for game
                     this.setupSockets();
                     //Registrating keyboard movements for game
@@ -99,6 +79,50 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                     this.socket.on('priceUpdate', function (data) {
                     }.bind(this));
                 };
+                GameComponent.prototype.registerTanks = function (tanks, texture) {
+                    if (!tanks || !texture)
+                        return console.log("Tanks array is empty.");
+                    for (var i = 0; i < tanks.length; i++) {
+                        if (tanks[i].tankOwner === this.userName) {
+                            this.myTank = new Tank_1.Tank(this.tileMap, {
+                                stage: this.stage,
+                                texture: texture,
+                                u: this.u,
+                                tankColour: tanks[i].tankColour,
+                                tankType: tanks[i].tankType,
+                                tankOwner: tanks[i].tankOwner,
+                                isMyTank: tanks[i].isMyTank,
+                                x: tanks[i].x,
+                                y: tanks[i].y
+                            }, tanks[i].direction);
+                        }
+                        else {
+                            this.enemyTanks.push(new Tank_1.Tank(this.tileMap, {
+                                stage: this.stage,
+                                texture: texture,
+                                u: this.u,
+                                tankColour: tanks[i].tankColour,
+                                tankType: tanks[i].tankType,
+                                tankOwner: tanks[i].tankOwner,
+                                isMyTank: tanks[i].isMyTank,
+                                x: tanks[i].x,
+                                y: tanks[i].y
+                            }, tanks[i].direction));
+                        }
+                    } //end of for loop determing enemies and my tank
+                    this.myTank.setEnemys(this.enemyTanks);
+                    this.myTank.removeIdle();
+                    for (var j = 0; j < this.enemyTanks.length; j++) {
+                        var enemyTanksArray = new Array();
+                        for (var k = 0; k < this.enemyTanks.lenght; k++) {
+                            if (this.enemyTanks[j] === this.enemyTanks[k])
+                                continue;
+                            enemyTanksArray.push(this.enemyTanks[k]);
+                        }
+                        enemyTanksArray.push(this.myTank);
+                        this.enemyTanks[j].setEnemys(enemyTanksArray);
+                    } //end of for loop for enemy tanks
+                }; //end of function registerTanks
                 GameComponent.prototype.registerKeyBoard = function () {
                     var _this = this;
                     var _loop_1 = function(i) {
@@ -140,13 +164,13 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                 GameComponent.prototype.animate = function () {
                     //this.animate.bind(this) jer callback izgubi referencu
                     requestAnimationFrame(this.animate.bind(this));
-                    this.myTank.animate();
-                    //animate other tanks also
-                    /*
-                    for ( let i = 0; i < this.enemyTanks.length; i++){
-                        this.enemyTanks[i].animate();
+                    if (!this.gameOver) {
+                        this.myTank.animate();
+                        //animate other tanks also
+                        for (var i = 0; i < this.enemyTanks.length; i++) {
+                            this.enemyTanks[i].animate();
+                        }
                     }
-                    */
                     // render the container
                     this.renderer.render(this.stage);
                 };

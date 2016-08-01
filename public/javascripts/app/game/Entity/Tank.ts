@@ -95,19 +95,22 @@ export class Tank extends MapObject {
 		if (this.flinching) return;
 		this.healthPoints -= bulletDamage;
 		if (this.healthPoints <= 0 && !this.flinching) {
-			this.spawnTank();
+			//TODO explosion
+			this.setAnimation("explosion");
 		}
 	}
 
 	//smoothing the movement
 	private getNextPosition() {
-		if (this.isMyTank && !Keys.isSomeKeyPressed) {
+		if (this.idle) return;
+		if ((this.isMyTank && !Keys.isSomeKeyPressed) || Keys.checkKeyPress("shoot")) {
 			this.dx = 0;
 			this.dy = 0;
 			return;
 		}
 		let maxSpeed = this.maxMovementSpeed;
 		// && (Keys.currentKeyPressed && Keys.currentKeyPressed.name == "down")
+		// this.directions["left"]
 		if (this.directions["left"]) {
 			this.dx -= this.movementSpeed;
 			if (this.dx < - maxSpeed) {
@@ -201,7 +204,7 @@ export class Tank extends MapObject {
 					this.currentAnimation.visible = true;
 				}
 			}
-			else{
+			else {
 				//flinching is over return this tank to visible
 				this.currentAnimation.visible = true;
 			}
@@ -212,6 +215,9 @@ export class Tank extends MapObject {
 		this.setupAnimations(_pixiObject.texture, Config.tankAnimations[_pixiObject.tankColour][_pixiObject.tankType], _pixiObject.u);
 		this.animations["spawn"].onComplete = () => {
 			this.setDirection(this.initialDirection);
+		};
+		this.animations["explosion"].onComplete = () => {
+			this.spawnTank();
 		};
 		this.spawnTank();
 	}

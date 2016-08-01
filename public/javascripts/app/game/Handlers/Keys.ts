@@ -5,6 +5,7 @@ export class Keys {
 	public static keys: any = {};
 	public static isSomeKeyPressed: boolean = false;
 	public static currentKeyPressed: any = null;
+	public static previousKeyPressed: any = null;
 
 	public static keyboard(_key: any) {
 		let key = {
@@ -24,6 +25,9 @@ export class Keys {
 				if (key.isUp && key.press) key.press();
 				key.isDown = true;
 				key.isUp = false;
+				if(this.currentKeyPressed){
+					this.previousKeyPressed = this.currentKeyPressed;
+				}
 				this.currentKeyPressed = key;
 				this.isSomeKeyPressed = true;
 			}
@@ -54,6 +58,14 @@ export class Keys {
 		//return key;
 	}
 
+	public static checkTwoKeys(previous: any, current: any){
+		if(!previous || !current) return;
+		return ((Keys.previousKeyPressed && Keys.previousKeyPressed.name == previous) && (Keys.currentKeyPressed && Keys.currentKeyPressed.name == current));
+	}
 
+	public static checkKeyPress(key: any){
+		if(!key) return;
+		return (Keys.currentKeyPressed && Keys.currentKeyPressed.name == key);
+	}
 
 }

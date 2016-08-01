@@ -100,18 +100,22 @@ System.register(['./MapObject', '../Config/Config', '../Handlers/Keys', './Bulle
                         return;
                     this.healthPoints -= bulletDamage;
                     if (this.healthPoints <= 0 && !this.flinching) {
-                        this.spawnTank();
+                        //TODO explosion
+                        this.setAnimation("explosion");
                     }
                 };
                 //smoothing the movement
                 Tank.prototype.getNextPosition = function () {
-                    if (this.isMyTank && !Keys_1.Keys.isSomeKeyPressed) {
+                    if (this.idle)
+                        return;
+                    if ((this.isMyTank && !Keys_1.Keys.isSomeKeyPressed) || Keys_1.Keys.checkKeyPress("shoot")) {
                         this.dx = 0;
                         this.dy = 0;
                         return;
                     }
                     var maxSpeed = this.maxMovementSpeed;
                     // && (Keys.currentKeyPressed && Keys.currentKeyPressed.name == "down")
+                    // this.directions["left"]
                     if (this.directions["left"]) {
                         this.dx -= this.movementSpeed;
                         if (this.dx < -maxSpeed) {
@@ -209,6 +213,9 @@ System.register(['./MapObject', '../Config/Config', '../Handlers/Keys', './Bulle
                     this.setupAnimations(_pixiObject.texture, Config_1.Config.tankAnimations[_pixiObject.tankColour][_pixiObject.tankType], _pixiObject.u);
                     this.animations["spawn"].onComplete = function () {
                         _this.setDirection(_this.initialDirection);
+                    };
+                    this.animations["explosion"].onComplete = function () {
+                        _this.spawnTank();
                     };
                     this.spawnTank();
                 };

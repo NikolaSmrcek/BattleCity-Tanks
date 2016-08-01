@@ -18,6 +18,7 @@ System.register(['../Config/Config'], function(exports_1, context_1) {
                     this.imageScale = 0;
                     this.animations = {};
                     this.currentAnimation = null;
+                    this.idle = true;
                     this.directions = {
                         left: false,
                         right: false,
@@ -133,6 +134,9 @@ System.register(['../Config/Config'], function(exports_1, context_1) {
                         hit = false;
                     }
                     return hit;
+                };
+                MapObject.prototype.removeIdle = function () {
+                    this.idle = false;
                 };
                 MapObject.prototype.checkTileMapCollision = function () {
                     this.blockingTiles = new Array();

@@ -10,6 +10,7 @@ export class MapObject {
 
 	protected animations: any = {};
 	protected currentAnimation: any = null;
+	protected idle: boolean = true;
 
 	protected directions: any = {
 		left: false,
@@ -153,6 +154,10 @@ export class MapObject {
 			hit = false;
 		}
 		return hit;
+	}
+
+	public removeIdle(){
+		this.idle = false;
 	}
 
 	public checkTileMapCollision() {

@@ -28,6 +28,9 @@ System.register([], function(exports_1, context_1) {
                                 key.press();
                             key.isDown = true;
                             key.isUp = false;
+                            if (_this.currentKeyPressed) {
+                                _this.previousKeyPressed = _this.currentKeyPressed;
+                            }
                             _this.currentKeyPressed = key;
                             _this.isSomeKeyPressed = true;
                         }
@@ -51,9 +54,20 @@ System.register([], function(exports_1, context_1) {
                     this.keys[key.code] = key;
                     //return key;
                 };
+                Keys.checkTwoKeys = function (previous, current) {
+                    if (!previous || !current)
+                        return;
+                    return ((Keys.previousKeyPressed && Keys.previousKeyPressed.name == previous) && (Keys.currentKeyPressed && Keys.currentKeyPressed.name == current));
+                };
+                Keys.checkKeyPress = function (key) {
+                    if (!key)
+                        return;
+                    return (Keys.currentKeyPressed && Keys.currentKeyPressed.name == key);
+                };
                 Keys.keys = {};
                 Keys.isSomeKeyPressed = false;
                 Keys.currentKeyPressed = null;
+                Keys.previousKeyPressed = null;
                 return Keys;
             }());
             exports_1("Keys", Keys);
