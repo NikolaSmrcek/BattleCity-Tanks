@@ -25,14 +25,14 @@ class usersController{
 	//true if taken
 	isUserNameTaken(userName = "", callback = ()=>{}){
 		if(userName = "") return callback("Empty string not allowed for userName.");
-		let index = this.lodash.findIndex(this.users, (user) => { return user.userName = userName});
+		let index = this.lodash.findIndex(this.users, (user) => { return user.userName == userName});
 		//return index === -1;
 		callback(null, (index === -1) );
 	}
 
 	getUserBySocketId(socketId, callback = ()=>{}){
 		if(!socketId) return callback("Must send socket id");
-		let index = this.lodash.findIndex(this.users, (user) => { return user.socketId = socketId});
+		let index = this.lodash.findIndex(this.users, (user) => { return user.socketId == socketId});
 		//return this.users[index];
 		callback(null, this.users[index]);
 	}

@@ -4,14 +4,14 @@ var sapis = require(global.nodeDirectory + '/Models/Sockets/meta/sapis.js'),
 
 
 //User joined queue
-exports[sapis.enterQueue] = ({ socket, data, emitter, queueController, usersController }) => {
+exports[sapis.enterQueue] = ({ socket, data, emitter, gameQueueController, usersController }) => {
     async.waterfall([
         (next) => {
             usersController.canJoinQueue(socket.id, next);
         },
         (next, canJoinQueue) => {
             if (canJoinQueue) {
-                queueController.addMember(usersController.getUserBySocketId(socket.id, next));
+                gameQueueController.addMember(usersController.getUserBySocketId(socket.id, next));
             } else {
                 next("User can't join queue, dodged too many games.");
             }

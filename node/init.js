@@ -2,26 +2,26 @@ var app, db, io, config;
 
 // Models
 // usersModel
-var queueModel;
+var gameQueueModel;
 
 
 //Controllers
 var usersController,
-	queueController;
+	gameQueueController;
 
 var initModels = () => {
-    let QueueModel = require(global.nodeDirectory + '/Models/Queue/queueModel.js');
+    let GameQueueModel = require(global.nodeDirectory + '/Models/Game/gameQueueModel.js');
     //let UsersModel = require(global.nodeDirectory + '/Models/Users/usersModel.js');
 
-    queueModel = new QueueModel();
+    gameQueueModel = new GameQueueModel();
     //usersModel = new UsersModel();
 };
 
 var initControllers = () => {
 	let UsersController = require(global.nodeDirectory + '/Controllers/Users/usersController.js');
-	let QueueController = require(global.nodeDirectory + '/Controllers/Queue/queueController.js');
+	let GameQueueController = require(global.nodeDirectory + '/Controllers/Game/gameQueueController.js');
 
-	queueController = new QueueController(queueModel);
+	gameQueueController = new GameQueueController(gameQueueModel, config);
 	usersController = new UsersController(config);
 };
 
@@ -37,7 +37,7 @@ var initRoutes = () => {
 };
 
 var initSapis = () => {
-    require(`${global.nodeDirectory}/Controllers/Sockets/socketController.js`).init({ io, usersController, queueController });
+    require(`${global.nodeDirectory}/Controllers/Sockets/socketController.js`).init({ io, usersController, gameQueueController });
 };
 
 
