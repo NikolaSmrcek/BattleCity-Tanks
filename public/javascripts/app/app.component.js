@@ -20,6 +20,7 @@ System.register(['@angular/core'], function(exports_1, context_1) {
         execute: function() {
             AppComponent = (function () {
                 function AppComponent() {
+                    var _this = this;
                     this.price = 0.0;
                     this.socket = null;
                     this.bidValue = '';
@@ -27,9 +28,23 @@ System.register(['@angular/core'], function(exports_1, context_1) {
                     this.socket.on('priceUpdate', function (data) {
                         this.price = data;
                     }.bind(this));
+                    //TODO remove below lines, only for testing
+                    this.socket.emit('userName', { userName: "kanta2323" + Math.floor((Math.random() * 100) + 1) });
+                    setTimeout(function () {
+                        _this.socket.emit('enterQueue', { userName: "kanta2323" });
+                    }, 100);
+                    setInterval(function () {
+                        console.log("TRying to enter queue");
+                        _this.socket.emit('enterQueue', { userName: "kanta2323" });
+                    }, 1000 * 10);
                 }
                 AppComponent.prototype.bid = function () {
                     this.socket.emit('bid', this.bidValue);
+                    /*
+                    setTimeout(() => {
+                        this.socket.emit('userName', { userName: "kanta2323" });
+                    }, 500);
+                    */
                     this.bidValue = '';
                 };
                 AppComponent = __decorate([

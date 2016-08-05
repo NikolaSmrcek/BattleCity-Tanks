@@ -11,9 +11,9 @@ exports[sapis.userName] = ({ socket, data, emitter, usersController }) => {
         (next) => {
             usersController.isUserNameTaken(data.userName, next);
         },
-        (next, taken) => {
+        (taken, next) => {
             if (!taken) {
-                usersController.addUser(new UsersModel(data.userName, socket.id), next);
+                usersController.addUser(new UsersModel(data.userName, socket.id, usersController.config.playerDodgeQueueInterval), next);
                 emitter.emit(socket, "userName", { status: 200, message: `User registrated with provided userName (${data.userName})` });
             } else {
                 emitter.emit(socket, "userName", { status: 400, message: "User name is taken, please provide another." });

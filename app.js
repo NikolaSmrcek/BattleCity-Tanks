@@ -41,7 +41,7 @@ function setupIO(server) {
     let io = require('socket.io').listen(server);
     server.listen(config.nodePort);
     io.set("origins", "*:*");
-    io.set('log level', 1);
+    io.set('log level', 0);
     io.set('transports', ['websocket', 'flashsocket', 'htmlfile', 'polling']);
     if (config.redisService && config.redisService.enabled) {
         var socketIoRedis = require('socket.io-redis');

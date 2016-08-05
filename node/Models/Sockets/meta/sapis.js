@@ -7,7 +7,8 @@ const sapis = {
 	userName: 'userName', //used for initial "login" into onlineUsers
 
 	//gameQueue based sapis,
-	enterQueue: 'enterQueue'
+	enterQueue: 'enterQueue',
+	acceptQueue: 'acceptQueue'
 };
 
 module.exports = sapis;

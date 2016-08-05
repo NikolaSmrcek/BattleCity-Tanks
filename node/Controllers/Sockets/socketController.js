@@ -20,18 +20,19 @@ exports.init = ({ io, usersController, gameQueueController }) => {
         });
         //handle socket connection end
         socket.on("disconnect", () => {
-        	//remove from list of online users
+            //remove from list of online users
         });
 
         //Sockets when client wants to subscribe or unsubscribe to/from channel
-        socket.on(sapis.subscribe, data => subscriptionsSapi[sapis.subscribe]({socket, data , emitter}));
-        socket.on(sapis.unsubscribe, data => subscriptionsSapi[sapis.unsubscribe]({socket, data, emitter}));
+        socket.on(sapis.subscribe, data => subscriptionsSapi[sapis.subscribe]({ socket, data, emitter }));
+        socket.on(sapis.unsubscribe, data => subscriptionsSapi[sapis.unsubscribe]({ socket, data, emitter }));
 
         //userRelated sapis - info, userName etc.
-        socket.on(sapis.userName, data => userRelatedSapi[sapis.userName]({socket, data, emitter, usersController}));
+        socket.on(sapis.userName, data => userRelatedSapi[sapis.userName]({ socket, data, emitter, usersController }));
 
         //queueRelated sapis - joining the queue, accepting queue call
-        socket.on(sapis.enterQueue, data => queueSapi[sapis.enterQueue]({socket, data, emitter, gameQueueController, usersController}));
+        socket.on(sapis.enterQueue, data => queueSapi[sapis.enterQueue]({ socket, data, emitter, gameQueueController, usersController }));
+        socket.on(sapis.acceptQueue, data => queueSapi[sapis.acceptQueue]({ socket, data, emitter, gameQueueController }));
 
         //join each socket to it's own channel
         socket.join(socket.id);

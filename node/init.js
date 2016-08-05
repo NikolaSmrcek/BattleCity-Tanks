@@ -7,7 +7,8 @@ var gameQueueModel;
 
 //Controllers
 var usersController,
-	gameQueueController;
+	gameQueueController,
+    gameController;
 
 var initModels = () => {
     let GameQueueModel = require(global.nodeDirectory + '/Models/Game/gameQueueModel.js');
@@ -20,8 +21,10 @@ var initModels = () => {
 var initControllers = () => {
 	let UsersController = require(global.nodeDirectory + '/Controllers/Users/usersController.js');
 	let GameQueueController = require(global.nodeDirectory + '/Controllers/Game/gameQueueController.js');
+    let GameController = require(global.nodeDirectory + '/Controllers/Game/gameController.js');
 
-	gameQueueController = new GameQueueController(gameQueueModel, config);
+    gameController = new GameController(config);
+	gameQueueController = new GameQueueController(gameQueueModel,gameController, config);
 	usersController = new UsersController(config);
 };
 
