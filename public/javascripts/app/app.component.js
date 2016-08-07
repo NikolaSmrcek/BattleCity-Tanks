@@ -1,4 +1,4 @@
-System.register(['@angular/core'], function(exports_1, context_1) {
+System.register(['@angular/core', './sockets/socketController'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,41 +10,35 @@ System.register(['@angular/core'], function(exports_1, context_1) {
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1;
+    var core_1, socketController_1;
     var AppComponent;
     return {
         setters:[
             function (core_1_1) {
                 core_1 = core_1_1;
+            },
+            function (socketController_1_1) {
+                socketController_1 = socketController_1_1;
             }],
         execute: function() {
             AppComponent = (function () {
                 function AppComponent() {
                     var _this = this;
                     this.price = 0.0;
-                    this.socket = null;
                     this.bidValue = '';
-                    this.socket = io('http://localhost:8000');
-                    this.socket.on('priceUpdate', function (data) {
-                        this.price = data;
-                    }.bind(this));
+                    socketController_1.SocketController.registerSocket('priceUpdate', function (data) { _this.price = data; });
                     //TODO remove below lines, only for testing
-                    this.socket.emit('userName', { userName: "kanta2323" + Math.floor((Math.random() * 100) + 1) });
+                    socketController_1.SocketController.emit('userName', { userName: "kanta2323" + Math.floor((Math.random() * 100) + 1) });
                     setTimeout(function () {
-                        _this.socket.emit('enterQueue', { userName: "kanta2323" });
+                        socketController_1.SocketController.emit('enterQueue', { userName: "kanta2323" });
                     }, 100);
                     setInterval(function () {
                         console.log("TRying to enter queue");
-                        _this.socket.emit('enterQueue', { userName: "kanta2323" });
+                        socketController_1.SocketController.emit('enterQueue', { userName: "kanta2323" });
                     }, 1000 * 10);
                 }
                 AppComponent.prototype.bid = function () {
-                    this.socket.emit('bid', this.bidValue);
-                    /*
-                    setTimeout(() => {
-                        this.socket.emit('userName', { userName: "kanta2323" });
-                    }, 500);
-                    */
+                    socketController_1.SocketController.emit('bid', this.bidValue);
                     this.bidValue = '';
                 };
                 AppComponent = __decorate([

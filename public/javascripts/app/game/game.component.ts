@@ -7,7 +7,6 @@ import { Config } from './Config/Config';
 import { Keys } from './Handlers/Keys';
 import { Tank } from './Entity/Tank';
 declare var PIXI: any;
-declare var io: any;
 declare var SpriteUtilities: any;
 
 @Component({
@@ -21,7 +20,6 @@ export class GameComponent {
 
     public renderer: any = null;
     public stage: any = null;
-    public socket: any = null;
     public element: any = null;
     public u: any = null;
 
@@ -41,8 +39,6 @@ export class GameComponent {
         this.u = new SpriteUtilities(PIXI);
         this.element = _element;
         this.enemyTanks = new Array();
-        this.socket = io('http://localhost:8000');
-        //0x1099bb
 
         PIXI.loader.add('gameTileSet', '/public/assets/game/images/gameTileSet.png').load(this.onAssetsLoaded.bind(this));
 
@@ -67,19 +63,12 @@ export class GameComponent {
 
         //TODO removeIdle on first socket for each tank
 
-        //Registrating all sockets for game
-        this.setupSockets();
         //Registrating keyboard movements for game
         this.registerKeyBoard();
         //Pixi game loop
         this.animate();
     }
 
-    setupSockets() {
-        this.socket.on('priceUpdate', function(data) {
-
-        }.bind(this));
-    }
 
     registerTanks(tanks: any, texture: any) {
         if (!tanks || !texture) return console.log("Tanks array is empty.");

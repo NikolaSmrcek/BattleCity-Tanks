@@ -1,6 +1,5 @@
 import {Component} from '@angular/core';
-declare var io: any;
-
+import {SocketController} from './sockets/socketController';
 
 @Component({
     selector: 'auction-app',
@@ -9,35 +8,25 @@ declare var io: any;
 
 export class AppComponent {
     price: number = 0.0;
-    socket = null;
     bidValue = '';
 
     constructor() {
-        this.socket = io('http://localhost:8000');
-        this.socket.on('priceUpdate', function(data) {
-            this.price = data;
-        }.bind(this));
-
+        SocketController.registerSocket('priceUpdate', (data) => {this.price = data;} );
         //TODO remove below lines, only for testing
-        this.socket.emit('userName', { userName: "kanta2323"+Math.floor((Math.random() * 100) + 1) });
+        SocketController.emit('userName', { userName: "kanta2323"+Math.floor((Math.random() * 100) + 1) });
+           
         setTimeout(() => {
-            this.socket.emit('enterQueue', { userName: "kanta2323" });
+            SocketController.emit('enterQueue', { userName: "kanta2323" });
         }, 100);
 
         setInterval(()=> {
             console.log("TRying to enter queue");
-            this.socket.emit('enterQueue', { userName: "kanta2323" });
+            SocketController.emit('enterQueue', { userName: "kanta2323" });
         },1000*10);
     }
 
     bid() {
-        this.socket.emit('bid', this.bidValue);
-
-        /*
-        setTimeout(() => {
-            this.socket.emit('userName', { userName: "kanta2323" });
-        }, 500);
-        */
+        SocketController.emit('bid',this.bidValue);
         this.bidValue = '';
     }
 }

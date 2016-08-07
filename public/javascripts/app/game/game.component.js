@@ -36,7 +36,6 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                     //TODO reorganize code below
                     this.renderer = null;
                     this.stage = null;
-                    this.socket = null;
                     this.element = null;
                     this.u = null;
                     this.tileMap = null;
@@ -51,8 +50,6 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                     this.u = new SpriteUtilities(PIXI);
                     this.element = _element;
                     this.enemyTanks = new Array();
-                    this.socket = io('http://localhost:8000');
-                    //0x1099bb
                     PIXI.loader.add('gameTileSet', '/public/assets/game/images/gameTileSet.png').load(this.onAssetsLoaded.bind(this));
                 }
                 GameComponent.prototype.onAssetsLoaded = function (loader, resources) {
@@ -68,16 +65,10 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                         { tankColour: "green", tankType: "small", tankOwner: "kanta", isMyTank: true, x: 250, y: 450, direction: "right" }];
                     this.registerTanks(tanks, resources.gameTileSet.texture);
                     //TODO removeIdle on first socket for each tank
-                    //Registrating all sockets for game
-                    this.setupSockets();
                     //Registrating keyboard movements for game
                     this.registerKeyBoard();
                     //Pixi game loop
                     this.animate();
-                };
-                GameComponent.prototype.setupSockets = function () {
-                    this.socket.on('priceUpdate', function (data) {
-                    }.bind(this));
                 };
                 GameComponent.prototype.registerTanks = function (tanks, texture) {
                     if (!tanks || !texture)
