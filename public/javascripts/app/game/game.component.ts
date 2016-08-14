@@ -10,7 +10,7 @@ declare var PIXI: any;
 declare var SpriteUtilities: any;
 
 @Component({
-    selector: 'proba',
+    selector: 'battleCity-game',
     template: ''
 })
 
@@ -28,7 +28,8 @@ export class GameComponent {
 
     //TODO  - from socket
     public gameOver: boolean = false;
-    public userName: string = "kanta";
+    public static userName: string = "kanta";
+    public static gameId: string = "";
 
     public enemyTanks: any = null;
 
@@ -40,6 +41,8 @@ export class GameComponent {
         this.element = _element;
         this.enemyTanks = new Array();
 
+        //reseting PIXI in memory 
+        PIXI.loader.reset();
         PIXI.loader.add('gameTileSet', '/public/assets/game/images/gameTileSet.png').load(this.onAssetsLoaded.bind(this));
 
     }
@@ -73,7 +76,7 @@ export class GameComponent {
     registerTanks(tanks: any, texture: any) {
         if (!tanks || !texture) return console.log("Tanks array is empty.");
         for (let i = 0; i < tanks.length; i++) {
-            if (tanks[i].tankOwner === this.userName) {
+            if (tanks[i].tankOwner === GameComponent.userName) {
                 this.myTank = new Tank(this.tileMap, {
                     stage: this.stage,
                     texture: texture,
@@ -141,7 +144,6 @@ export class GameComponent {
                     Keys.keyboard(keyProps);
                     Keys.keys[keyProps.keyCode].press = () => {
                         //TODO TEST + add socket emit + action for shooting
-                        console.log("PEW PEW PEW");
                         this.myTank.addBullet();
                     };
                     Keys.keys[keyProps.keyCode].release = () => {
@@ -152,6 +154,7 @@ export class GameComponent {
             }
 
         }
+        Keys.isInGame = true;
     }
 
     animate() {

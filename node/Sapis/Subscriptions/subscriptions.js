@@ -5,7 +5,7 @@ exports[sapis.subscribe] = ({ socket, data }) => {
 	socket.join(data.channel);
 };
 
-exports[sapis.subscribe] = ({ socket, data }) => {
+exports[sapis.unsubscribe] = ({ socket, data }) => {
 	if(!data && !data.channel) return console.log("Channel not provided for leaving.");
 	socket.leave(data.channel);
 };

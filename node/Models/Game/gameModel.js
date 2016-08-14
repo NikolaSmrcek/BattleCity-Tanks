@@ -6,8 +6,9 @@ var async = require('async'),
 
 class GameModel {
 
-    constructor(config) {
+    constructor(config, emitter) {
         this.config = config;
+        this.emitter = emitter;
         this.gameMembers = new Array();
 
         this.created = moment().unix();
@@ -35,7 +36,7 @@ class GameModel {
     }
 
     getInviteVotes(callback=()=>{}){
-        return callback(null,this.votes);
+        return callback(null,this.inviteVotes);
     }
 
     _checkQueueWaitingTime(callback = () => {}) {
@@ -59,6 +60,11 @@ class GameModel {
             //this.gameMembers.push(lodash.cloneDeep(member));
             this.gameMembers.push(member);
             this.lastAddedMember = moment().unix();
+            member.getSocketId((err,socketId)=>{
+                //TODO get ID async
+                member.socket.join(this.id.toString());
+                this.emitter.emit(socketId, "gameJoin", {gameId: this.id.toString()});
+            });
             member.setStatus("inqueue",callback);
             //return callback(null);
         } else {
@@ -79,15 +85,20 @@ class GameModel {
         lodash.remove(this.gameMembers, (userFromArray) => {
             return userFromArray.socketId == member.socketId;
         });
+        member.socket.leave(this.id.toString());
         return callback(null);
     }
 
     setMemberQueueVote(socketId, answer, callback=()=>{}){
         this.getInviteVotes((err,object)=>{
             if(socketId.toString() in object) return callback("Player with that socketId allready answered the queue.");
-            object[socketId] = answer;
+            object[socketId.toString()] = answer;
             return callback(null);
         });
+    }
+
+    emitToChannel(type,message){
+        this.emitter.emit(this.id.toString(), type, message);
     }
 
 }

@@ -2,15 +2,19 @@ var app, db, io, config;
 
 // Models
 // usersModel
-var gameQueueModel;
+var gameQueueModel,
+    emitter;
 
 
 //Controllers
 var usersController,
-	gameQueueController,
+    gameQueueController,
     gameController;
 
 var initModels = () => {
+    var SocketEmitter = require(global.nodeDirectory + '/Models/Sockets/Emitter.js');
+    emitter = new SocketEmitter(io);
+
     let GameQueueModel = require(global.nodeDirectory + '/Models/Game/gameQueueModel.js');
     //let UsersModel = require(global.nodeDirectory + '/Models/Users/usersModel.js');
 
@@ -19,13 +23,13 @@ var initModels = () => {
 };
 
 var initControllers = () => {
-	let UsersController = require(global.nodeDirectory + '/Controllers/Users/usersController.js');
-	let GameQueueController = require(global.nodeDirectory + '/Controllers/Game/gameQueueController.js');
+    let UsersController = require(global.nodeDirectory + '/Controllers/Users/usersController.js');
+    let GameQueueController = require(global.nodeDirectory + '/Controllers/Game/gameQueueController.js');
     let GameController = require(global.nodeDirectory + '/Controllers/Game/gameController.js');
 
     gameController = new GameController(config);
-	gameQueueController = new GameQueueController(gameQueueModel,gameController, config);
-	usersController = new UsersController(config);
+    gameQueueController = new GameQueueController(gameQueueModel, gameController, config, emitter);
+    usersController = new UsersController(config);
 };
 
 
@@ -40,7 +44,7 @@ var initRoutes = () => {
 };
 
 var initSapis = () => {
-    require(`${global.nodeDirectory}/Controllers/Sockets/socketController.js`).init({ io, usersController, gameQueueController });
+    require(`${global.nodeDirectory}/Controllers/Sockets/socketController.js`).init( io, emitter, usersController, gameQueueController );
 };
 
 

@@ -1,9 +1,8 @@
 var emitter = null;
 var sapis = require(global.nodeDirectory + '/Models/Sockets/meta/sapis.js');
 
-exports.init = ({ io, usersController, gameQueueController }) => {
-    var SocketEmitter = require(global.nodeDirectory + '/Models/Sockets/Emitter.js');
-    emitter = new SocketEmitter(io);
+exports.init = ( io, _emitter, usersController, gameQueueController ) => {
+    emitter = _emitter;
     //TODO rethink, maybe we will need to set emitter to queueController
     //queueModel =  used for contaning data for queue
     let subscriptionsSapi = require(global.nodeDirectory + '/Sapis/Subscriptions/subscriptions.js');

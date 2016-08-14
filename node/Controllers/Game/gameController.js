@@ -14,6 +14,7 @@ class gameController {
         return callback(null, this.games);
     }
 
+    //TODO emit users that game is starting, send them notification, choose map tanks for members
     addGame(game = null, callback = () => {}) {
         if (!game) return callback("Game cannot be null object.");
         game.setStatus("inprogress", () => {

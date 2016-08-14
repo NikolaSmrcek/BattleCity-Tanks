@@ -1,6 +1,8 @@
 import {bootstrap}    from '@angular/platform-browser-dynamic'
-import {AppComponent} from './app.component'
-import {GameComponent} from './game/game.component'
+import {IndexComponent} from './site/index.component'
 
-bootstrap(AppComponent);
-bootstrap(GameComponent);
+import { APP_ROUTER_PROVIDER } from './routes/app.routes';
+
+bootstrap(IndexComponent,[
+  APP_ROUTER_PROVIDER
+]);

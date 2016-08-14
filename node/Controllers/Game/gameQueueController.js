@@ -7,7 +7,7 @@ var GameModel = require(global.nodeDirectory + '/Models/Game/gameModel.js');
 
 class gameQueueController {
 
-    constructor(queueModel = null, gameController, config) {
+    constructor(queueModel = null, gameController, config, _emitter) {
         if (!queueModel) return logger.error("QueueModel is null cannot initilize queueController.");
         this.queueModel = queueModel;
 
@@ -17,6 +17,8 @@ class gameQueueController {
 
         this.interval = null;
         this.config = config;
+
+        this.emitter = _emitter;
 
         this.startQueue();
     }
@@ -132,7 +134,7 @@ class gameQueueController {
         let game = null;
         async.waterfall([
             (next) => {
-                game = new GameModel(this.config);
+                game = new GameModel(this.config, this.emitter);
                 game.setStatus("inqueue", next);
             },
             (next) => {
@@ -204,6 +206,7 @@ class gameQueueController {
         if (!game) return callback("Game object cannot be null");
         async.waterfall([
             (next) => {
+                game.emitToChannel("gameInvite", {});
                 game.setStatus("invitational", next);
             },
             (next) => {
@@ -235,7 +238,8 @@ class gameQueueController {
                     members = _members;
                     for (let index in members) {
                         let member = members[index];
-                        if (votes = {} || !votes[member.socketId]) {
+                        if (votes == {} || !votes[member.socketId]) {
+                            if(member.socketId in votes) console.log("It is inside.");
                             ready = false;
                             membersToRemove.push(member);
                         }
@@ -298,11 +302,11 @@ class gameQueueController {
         if (!gameId) return callback("GameId not provided.");
         async.waterfall([
             (next) => {
-                this.queueGames(next);
+                this.getQueueGames(next);
             },
             (games, next) => {
                 let index = lodash.findIndex(games, (game) => {
-                    game.id.toString() == gameId.toString();
+                    return game.id.toString() == gameId.toString();
                 });
                 return callback(null, games[index]);
             }

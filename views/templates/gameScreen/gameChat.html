@@ -1,0 +1,20 @@
+<div class="container" style="width:inherit">
+    <div class="battleCityChatMessagesContainer pre-scrollable text-left">
+        <div *ngFor="#msg of conversation" class="battleCityChatMessage" [style.background-color] = "msg.color">
+            <span>
+				{{msg.message}}
+			</span>
+			<br>
+        </div>
+    </div>
+    <br>
+    <br>
+    <div class="battleCityChatControls">
+        <div class="row text-left">
+            <input type="text" class="battleCityChatInputMessage" name="textInput" [(ngModel)]="message" (focus) = "changeKeysInGameFocus()" (keypress)="keypressHandler($event)" (blur) = "changeKeysInGameBlur()">
+        </div>
+        <div class="row">
+            <button type="button" class="btn btn-success btn-block text-center" (click)="send()">Send!</button>
+        </div>
+    </div>
+</div>

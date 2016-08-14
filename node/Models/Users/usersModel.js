@@ -2,9 +2,11 @@ var logger = require(`${global.nodeDirectory}/libs/logger.js`);
 
 class UserModel {
 
-    constructor(userName, socketId, clearDodges, db = null) {
+    constructor(userName, socket, clearDodges, db = null) {
         this.userName = userName;
-        this.socketId = socketId;
+        //this.socketId = socketId;
+        this.socket = socket;
+        this.socketId = socket.id.toString();
         this.queueDodges = 0;
         this.clearDodges = clearDodges;
         this.status = "online";
@@ -16,7 +18,7 @@ class UserModel {
     }
 
     getSocketId(callback = () => {}) {
-        return callback(null, this.socketId);
+        return callback(null, this.socket.id);
     }
 
     getQueueDodges(callback = () => {}) {

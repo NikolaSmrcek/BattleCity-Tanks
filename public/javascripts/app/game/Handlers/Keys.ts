@@ -6,6 +6,7 @@ export class Keys {
 	public static isSomeKeyPressed: boolean = false;
 	public static currentKeyPressed: any = null;
 	public static previousKeyPressed: any = null;
+	public static isInGame: boolean = false;
 
 	public static keyboard(_key: any) {
 		let key = {
@@ -21,7 +22,7 @@ export class Keys {
 		};
 		//&& ((!this.currentKeyPressed || this.currentKeyPressed.code === key.code) || key.moveAndAction)
 		key.downHandler = (event) => {
-			if (event.keyCode === key.code && ((!this.currentKeyPressed || this.currentKeyPressed.code === key.code) || key.moveAndAction)) {
+			if (this.isInGame && event.keyCode === key.code && ((!this.currentKeyPressed || this.currentKeyPressed.code === key.code) || key.moveAndAction)) {
 				if (key.isUp && key.press) key.press();
 				key.isDown = true;
 				key.isUp = false;
@@ -30,20 +31,24 @@ export class Keys {
 				}
 				this.currentKeyPressed = key;
 				this.isSomeKeyPressed = true;
+
+				event.preventDefault();
 			}
-			event.preventDefault();
+			
 		};
 		//&& ((this.currentKeyPressed.code === key.code) || key.moveAndAction )
 		key.upHandler = (event) => {
-			if (event.keyCode === key.code && ((this.currentKeyPressed && this.currentKeyPressed.code === key.code) || key.moveAndAction )) {
+			if (this.isInGame && event.keyCode === key.code && ((this.currentKeyPressed && this.currentKeyPressed.code === key.code) || key.moveAndAction )) {
 				//TODO test it maybe it needs some smoothing, example enable shooting and moving
 				if (key.isDown && key.release) key.release();
 				key.isDown = false;
 				key.isUp = true;
 				this.currentKeyPressed = null;
 				this.isSomeKeyPressed = false;
+
+				event.preventDefault();
 			}
-			event.preventDefault();
+			
 		};
 
 		window.addEventListener(

@@ -23,7 +23,7 @@ System.register([], function(exports_1, context_1) {
                     };
                     //&& ((!this.currentKeyPressed || this.currentKeyPressed.code === key.code) || key.moveAndAction)
                     key.downHandler = function (event) {
-                        if (event.keyCode === key.code && ((!_this.currentKeyPressed || _this.currentKeyPressed.code === key.code) || key.moveAndAction)) {
+                        if (_this.isInGame && event.keyCode === key.code && ((!_this.currentKeyPressed || _this.currentKeyPressed.code === key.code) || key.moveAndAction)) {
                             if (key.isUp && key.press)
                                 key.press();
                             key.isDown = true;
@@ -33,12 +33,12 @@ System.register([], function(exports_1, context_1) {
                             }
                             _this.currentKeyPressed = key;
                             _this.isSomeKeyPressed = true;
+                            event.preventDefault();
                         }
-                        event.preventDefault();
                     };
                     //&& ((this.currentKeyPressed.code === key.code) || key.moveAndAction )
                     key.upHandler = function (event) {
-                        if (event.keyCode === key.code && ((_this.currentKeyPressed && _this.currentKeyPressed.code === key.code) || key.moveAndAction)) {
+                        if (_this.isInGame && event.keyCode === key.code && ((_this.currentKeyPressed && _this.currentKeyPressed.code === key.code) || key.moveAndAction)) {
                             //TODO test it maybe it needs some smoothing, example enable shooting and moving
                             if (key.isDown && key.release)
                                 key.release();
@@ -46,8 +46,8 @@ System.register([], function(exports_1, context_1) {
                             key.isUp = true;
                             _this.currentKeyPressed = null;
                             _this.isSomeKeyPressed = false;
+                            event.preventDefault();
                         }
-                        event.preventDefault();
                     };
                     window.addEventListener("keydown", key.downHandler.bind(key), false);
                     window.addEventListener("keyup", key.upHandler.bind(key), false);
@@ -68,6 +68,7 @@ System.register([], function(exports_1, context_1) {
                 Keys.isSomeKeyPressed = false;
                 Keys.currentKeyPressed = null;
                 Keys.previousKeyPressed = null;
+                Keys.isInGame = false;
                 return Keys;
             }());
             exports_1("Keys", Keys);

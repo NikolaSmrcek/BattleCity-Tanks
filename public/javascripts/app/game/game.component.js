@@ -42,7 +42,6 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                     this.myTank = null;
                     //TODO  - from socket
                     this.gameOver = false;
-                    this.userName = "kanta";
                     this.enemyTanks = null;
                     //TODO reorganize
                     this.renderer = PIXI.autoDetectRenderer(Config_1.Config.gameWidth, Config_1.Config.gameHeight, { backgroundColor: Config_1.Config.gameBackgroundColour });
@@ -50,6 +49,8 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                     this.u = new SpriteUtilities(PIXI);
                     this.element = _element;
                     this.enemyTanks = new Array();
+                    //reseting PIXI in memory 
+                    PIXI.loader.reset();
                     PIXI.loader.add('gameTileSet', '/public/assets/game/images/gameTileSet.png').load(this.onAssetsLoaded.bind(this));
                 }
                 GameComponent.prototype.onAssetsLoaded = function (loader, resources) {
@@ -74,7 +75,7 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                     if (!tanks || !texture)
                         return console.log("Tanks array is empty.");
                     for (var i = 0; i < tanks.length; i++) {
-                        if (tanks[i].tankOwner === this.userName) {
+                        if (tanks[i].tankOwner === GameComponent.userName) {
                             this.myTank = new Tank_1.Tank(this.tileMap, {
                                 stage: this.stage,
                                 texture: texture,
@@ -138,7 +139,6 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                                 Keys_1.Keys.keyboard(keyProps);
                                 Keys_1.Keys.keys[keyProps.keyCode].press = function () {
                                     //TODO TEST + add socket emit + action for shooting
-                                    console.log("PEW PEW PEW");
                                     _this.myTank.addBullet();
                                 };
                                 Keys_1.Keys.keys[keyProps.keyCode].release = function () {
@@ -151,6 +151,7 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                     for (var i = 0; i < Config_1.Config.keyboard.length; i++) {
                         _loop_1(i);
                     }
+                    Keys_1.Keys.isInGame = true;
                 };
                 GameComponent.prototype.animate = function () {
                     //this.animate.bind(this) jer callback izgubi referencu
@@ -165,9 +166,11 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                     // render the container
                     this.renderer.render(this.stage);
                 };
+                GameComponent.userName = "kanta";
+                GameComponent.gameId = "";
                 GameComponent = __decorate([
                     core_1.Component({
-                        selector: 'proba',
+                        selector: 'battleCity-game',
                         template: ''
                     }), 
                     __metadata('design:paramtypes', [core_1.ElementRef])
