@@ -39,7 +39,7 @@ System.register(['../Config/Config', './Tile'], function(exports_1, context_1) {
                     console.log("Typed, ", this.tiles);
                 };
                 TileMap.prototype.loadMap = function (_map) {
-                    _map = Config_1.Config.demoMap2; //TODO send it - no demo map
+                    _map = _map || Config_1.Config.demoMap2; //TODO send it - no demo map
                     if (typeof _map !== "string")
                         return;
                     //for now default Map border will be applied, when making map need to take that in mind

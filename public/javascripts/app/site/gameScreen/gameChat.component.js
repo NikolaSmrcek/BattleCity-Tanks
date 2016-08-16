@@ -1,4 +1,4 @@
-System.register(['@angular/core', '../../game/Handlers/Keys'], function(exports_1, context_1) {
+System.register(['@angular/core', '../../game/Handlers/Keys', '../../game/game.component', '../../sockets/socketController'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,7 +10,7 @@ System.register(['@angular/core', '../../game/Handlers/Keys'], function(exports_
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, Keys_1;
+    var core_1, Keys_1, game_component_1, socketController_1;
     var GameChat;
     return {
         setters:[
@@ -19,19 +19,30 @@ System.register(['@angular/core', '../../game/Handlers/Keys'], function(exports_
             },
             function (Keys_1_1) {
                 Keys_1 = Keys_1_1;
+            },
+            function (game_component_1_1) {
+                game_component_1 = game_component_1_1;
+            },
+            function (socketController_1_1) {
+                socketController_1 = socketController_1_1;
             }],
         execute: function() {
             //TODO import SocketController - emit messages and display messages
             GameChat = (function () {
                 function GameChat() {
                     this.conversation = [];
+                    this.conversation = [];
                 }
                 GameChat.prototype.ngOnInit = function () {
-                    //todo register sockets - for pushing on receive
+                    var _this = this;
+                    this.conversation = [];
+                    socketController_1.SocketController.registerSocket("gameChatMessage", function (data) {
+                        _this.conversation.push({ "message": data.message, "color": data.color });
+                    });
                 };
                 GameChat.prototype.send = function () {
-                    //TODO SEND SOCKET MESSAGE
-                    this.conversation.push({ "message": this.message, "color": "red" });
+                    //this.conversation.push({ "message": this.message, "color": "red" });
+                    socketController_1.SocketController.emit("gameChatMessage", { message: this.message, color: game_component_1.GameComponent.myTankColour, gameId: game_component_1.GameComponent.gameId, tankOwner: game_component_1.GameComponent.userName });
                     this.message = "";
                 };
                 GameChat.prototype.keypressHandler = function (event) {

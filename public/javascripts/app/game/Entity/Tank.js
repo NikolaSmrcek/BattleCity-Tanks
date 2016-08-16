@@ -1,4 +1,4 @@
-System.register(['./MapObject', '../Config/Config', '../Handlers/Keys', './Bullet'], function(exports_1, context_1) {
+System.register(['./MapObject', '../Config/Config', './Bullet', '../../sockets/socketController'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __extends = (this && this.__extends) || function (d, b) {
@@ -6,7 +6,7 @@ System.register(['./MapObject', '../Config/Config', '../Handlers/Keys', './Bulle
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
-    var MapObject_1, Config_1, Keys_1, Bullet_1;
+    var MapObject_1, Config_1, Bullet_1, socketController_1;
     var Tank;
     return {
         setters:[
@@ -16,11 +16,11 @@ System.register(['./MapObject', '../Config/Config', '../Handlers/Keys', './Bulle
             function (Config_1_1) {
                 Config_1 = Config_1_1;
             },
-            function (Keys_1_1) {
-                Keys_1 = Keys_1_1;
-            },
             function (Bullet_1_1) {
                 Bullet_1 = Bullet_1_1;
+            },
+            function (socketController_1_1) {
+                socketController_1 = socketController_1_1;
             }],
         execute: function() {
             Tank = (function (_super) {
@@ -43,16 +43,19 @@ System.register(['./MapObject', '../Config/Config', '../Handlers/Keys', './Bulle
                     this.flinchCounter = 0;
                     this.flinchStop = 0;
                     this.spawning = false;
+                    this.shooting = false;
                     this.enemyTanks = null;
                     this.bullets = null;
                     //TODO change way or place to hold SpriteUtilites and texture
                     this.pixiObject = null;
+                    this.gameId = "";
                     this.pixiObject = pixiObject;
                     this.initialDirection = _direction;
                     this.tankOwner = pixiObject.tankOwner || "";
                     this.tankColour = pixiObject.tankColour;
                     this.tankType = pixiObject.tankType;
                     this.isMyTank = pixiObject.isMyTank || false;
+                    this.gameId = pixiObject.gameId;
                     this.bullets = new Array();
                     this.cwidth = Config_1.Config.entityTileSize * Config_1.Config.imageScale; //TODO check if * imageScale is neccesary
                     this.cheight = Config_1.Config.entityTileSize * Config_1.Config.imageScale;
@@ -74,7 +77,6 @@ System.register(['./MapObject', '../Config/Config', '../Handlers/Keys', './Bulle
                             this.xtemp = this.x;
                             this.ytemp = this.y;
                         }
-                        //TODO checking if anyof my bullets hit enemyTank
                         //bullet set removable
                         for (var j = 0; j < this.bullets.length; j++) {
                             //for loop where we check if the bullets collided, if they did just remove them - nothing happens
@@ -86,6 +88,8 @@ System.register(['./MapObject', '../Config/Config', '../Handlers/Keys', './Bulle
                             }
                             if (this.bullets[j].intersects(this.enemyTanks[i])) {
                                 //TODO add explosion animation to tank
+                                if (this.isMyTank)
+                                    socketController_1.SocketController.emit("gameTankHit", { tankOwner: this.tankOwner, gameId: this.gameId });
                                 this.enemyTanks[i].setHit(this.bullets[j].getBulletDamage());
                                 this.bullets[j].setRemove();
                                 break;
@@ -106,9 +110,9 @@ System.register(['./MapObject', '../Config/Config', '../Handlers/Keys', './Bulle
                 };
                 //smoothing the movement
                 Tank.prototype.getNextPosition = function () {
-                    if (this.idle)
-                        return;
-                    if ((this.isMyTank && !Keys_1.Keys.isSomeKeyPressed) || Keys_1.Keys.checkKeyPress("shoot")) {
+                    //if (this.idle) return;
+                    //(this.isMyTank && !Keys.isSomeKeyPressed) || Keys.checkKeyPress("shoot") 
+                    if (this.idle || this.shooting) {
                         this.dx = 0;
                         this.dy = 0;
                         return;
@@ -231,6 +235,12 @@ System.register(['./MapObject', '../Config/Config', '../Handlers/Keys', './Bulle
                 Tank.prototype.setBullets = function (_bullets) {
                     this.bullets = _bullets;
                 };
+                Tank.prototype.setShooting = function () {
+                    this.shooting = true;
+                };
+                Tank.prototype.removeShooting = function () {
+                    this.shooting = false;
+                };
                 Tank.prototype.addBullet = function () {
                     //TODO mana or timedelay
                     if (this.mana >= this.bulletManaCost) {
@@ -255,7 +265,6 @@ System.register(['./MapObject', '../Config/Config', '../Handlers/Keys', './Bulle
                     //animate bullets
                     for (var i = 0; i < this.bullets.length; i++) {
                         if (this.bullets[i].isRemovable()) {
-                            //TODO delete Enemy
                             this.bullets[i].safetlyRemove();
                             delete this.bullets[i];
                             this.bullets.splice(i, 1);

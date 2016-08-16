@@ -160,6 +160,10 @@ export class MapObject {
 		this.idle = false;
 	}
 
+	public setIdle(){
+		this.idle = true;
+	}
+
 	public checkTileMapCollision() {
 		this.blockingTiles = new Array();
 		this.currentRow = parseInt((this.y / this.mapTileSize).toString(), 10);

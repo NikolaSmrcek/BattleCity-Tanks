@@ -1,4 +1,4 @@
-System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handlers/Keys', './Entity/Tank'], function(exports_1, context_1) {
+System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handlers/Keys', './Entity/Tank', '../sockets/socketController'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,7 +10,7 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, TileMap_1, Config_1, Keys_1, Tank_1;
+    var core_1, TileMap_1, Config_1, Keys_1, Tank_1, socketController_1;
     var GameComponent;
     return {
         setters:[
@@ -28,6 +28,9 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
             },
             function (Tank_1_1) {
                 Tank_1 = Tank_1_1;
+            },
+            function (socketController_1_1) {
+                socketController_1 = socketController_1_1;
             }],
         execute: function() {
             GameComponent = (function () {
@@ -58,16 +61,20 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                     this.element.nativeElement.appendChild((this.renderer.view));
                     this.tileMap = new TileMap_1.TileMap(this.stage, this.u);
                     this.tileMap.loadTiles(resources.gameTileSet.texture);
-                    this.tileMap.loadMap(""); //TODO get map from socket
+                    this.tileMap.loadMap(GameComponent.mapTiles); //TODO get map from socket
                     //TODO make tanks from data that come from socket
-                    var tanks = [{ tankColour: "yellow", tankType: "small", tankOwner: "RANDOM12", isMyTank: false, x: 500, y: 500, direction: "left" },
+                    /*
+                    let tanks = [{ tankColour: "yellow", tankType: "small", tankOwner: "RANDOM12", isMyTank: false, x: 500, y: 500, direction: "left" },
                         { tankColour: "grey", tankType: "small", tankOwner: "RANDOM2", isMyTank: false, x: 100, y: 100, direction: "left" },
                         { tankColour: "pink", tankType: "small", tankOwner: "RANDOM3", isMyTank: false, x: 300, y: 300, direction: "left" },
                         { tankColour: "green", tankType: "small", tankOwner: "kanta", isMyTank: true, x: 250, y: 450, direction: "right" }];
-                    this.registerTanks(tanks, resources.gameTileSet.texture);
+                    */
+                    this.registerTanks(GameComponent.tanks, resources.gameTileSet.texture);
                     //TODO removeIdle on first socket for each tank
                     //Registrating keyboard movements for game
                     this.registerKeyBoard();
+                    //REgistrating sockets
+                    this.registerSockets();
                     //Pixi game loop
                     this.animate();
                 };
@@ -83,10 +90,12 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                                 tankColour: tanks[i].tankColour,
                                 tankType: tanks[i].tankType,
                                 tankOwner: tanks[i].tankOwner,
-                                isMyTank: tanks[i].isMyTank,
+                                isMyTank: true,
                                 x: tanks[i].x,
-                                y: tanks[i].y
+                                y: tanks[i].y,
+                                gameId: GameComponent.gameId
                             }, tanks[i].direction);
+                            GameComponent.myTankColour = tanks[i].tankColour;
                         }
                         else {
                             this.enemyTanks.push(new Tank_1.Tank(this.tileMap, {
@@ -96,17 +105,17 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                                 tankColour: tanks[i].tankColour,
                                 tankType: tanks[i].tankType,
                                 tankOwner: tanks[i].tankOwner,
-                                isMyTank: tanks[i].isMyTank,
+                                isMyTank: false,
                                 x: tanks[i].x,
-                                y: tanks[i].y
+                                y: tanks[i].y,
+                                gameId: GameComponent.gameId
                             }, tanks[i].direction));
                         }
                     } //end of for loop determing enemies and my tank
                     this.myTank.setEnemys(this.enemyTanks);
-                    this.myTank.removeIdle();
                     for (var j = 0; j < this.enemyTanks.length; j++) {
                         var enemyTanksArray = new Array();
-                        for (var k = 0; k < this.enemyTanks.lenght; k++) {
+                        for (var k = 0; k < this.enemyTanks.length; k++) {
                             if (this.enemyTanks[j] === this.enemyTanks[k])
                                 continue;
                             enemyTanksArray.push(this.enemyTanks[k]);
@@ -116,7 +125,6 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                     } //end of for loop for enemy tanks
                 }; //end of function registerTanks
                 GameComponent.prototype.registerKeyBoard = function () {
-                    var _this = this;
                     var _loop_1 = function(i) {
                         var keyProps = Config_1.Config.keyboard[i];
                         console.log("Key: ", keyProps.keyCode, " type: ", typeof keyProps.keyCode);
@@ -129,20 +137,22 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                                 Keys_1.Keys.keys[keyProps.keyCode].press = function () {
                                     //TODO TEST + add socket emit
                                     //console.log("Key for changing direction pressed");
-                                    _this.myTank.setDirection(keyProps.action);
+                                    //this.myTank.setDirection(keyProps.action);
+                                    socketController_1.SocketController.emit("gameTankAction", { tankOwner: GameComponent.userName, gameId: GameComponent.gameId, value: keyProps.action, action: "direction" });
                                 };
                                 Keys_1.Keys.keys[keyProps.keyCode].release = function () {
-                                    //console.log("Key release.");
+                                    socketController_1.SocketController.emit("gameTankAction", { tankOwner: GameComponent.userName, gameId: GameComponent.gameId, value: {}, action: "idle" });
                                 };
                                 break;
                             case "shoot":
                                 Keys_1.Keys.keyboard(keyProps);
                                 Keys_1.Keys.keys[keyProps.keyCode].press = function () {
                                     //TODO TEST + add socket emit + action for shooting
-                                    _this.myTank.addBullet();
+                                    //this.myTank.addBullet();
+                                    socketController_1.SocketController.emit("gameTankAction", { tankOwner: GameComponent.userName, gameId: GameComponent.gameId, action: "shoot", value: {} });
                                 };
                                 Keys_1.Keys.keys[keyProps.keyCode].release = function () {
-                                    //console.log("Key release.");
+                                    socketController_1.SocketController.emit("gameTankAction", { tankOwner: GameComponent.userName, gameId: GameComponent.gameId, action: "shootStop", value: {} });
                                 };
                                 break;
                             default: console.log("Unkown action: ", keyProps.action, " for ASCII key: ", keyProps.keyCode);
@@ -152,6 +162,46 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                         _loop_1(i);
                     }
                     Keys_1.Keys.isInGame = true;
+                };
+                GameComponent.prototype.registerSockets = function () {
+                    var _this = this;
+                    socketController_1.SocketController.registerSocket("gameTankAction", function (data) {
+                        if (!data.tankOwner || !data.gameId || !data.action)
+                            return console.log("Missing data");
+                        if (data.gameId !== GameComponent.gameId)
+                            return console.log("Non matching gameId");
+                        var tank = null;
+                        if (data.tankOwner === GameComponent.userName) {
+                            tank = _this.myTank;
+                        }
+                        else {
+                            for (var j = 0; j < _this.enemyTanks.length; j++) {
+                                if (_this.enemyTanks[j].tankOwner === data.tankOwner) {
+                                    tank = _this.enemyTanks[j];
+                                }
+                            }
+                        }
+                        if (tank === null)
+                            return console.log("Could not determine tank by tankOwner.");
+                        switch (data.action) {
+                            case "direction":
+                                tank.removeIdle();
+                                tank.setDirection(data.value);
+                                break;
+                            case "shoot":
+                                tank.setShooting();
+                                tank.addBullet();
+                                break;
+                            case "shootStop":
+                                tank.removeShooting();
+                                break;
+                            case "idle":
+                                tank.setIdle();
+                                break;
+                            default:
+                                console.log("Unknown action sent, action: " + data.action);
+                        }
+                    });
                 };
                 GameComponent.prototype.animate = function () {
                     //this.animate.bind(this) jer callback izgubi referencu
@@ -167,7 +217,11 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                     this.renderer.render(this.stage);
                 };
                 GameComponent.userName = "kanta";
+                GameComponent.myTankColour = "";
                 GameComponent.gameId = "";
+                GameComponent.mapName = "";
+                GameComponent.mapTiles = "";
+                GameComponent.tanks = new Array();
                 GameComponent = __decorate([
                     core_1.Component({
                         selector: 'battleCity-game',

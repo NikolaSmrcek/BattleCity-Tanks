@@ -30,12 +30,13 @@ System.register(['@angular/core', '../sockets/socketController', '../game/game.c
                 keyboardConfig_component_1 = keyboardConfig_component_1_1;
             }],
         execute: function() {
-            //imported componened we added as Directive so it we can shot it's content in the templateURL
+            //imported component we added as Directive so it we can shot it's content in the templateURL
             MainMenuComponent = (function () {
                 function MainMenuComponent(router) {
                     this.router = router;
                 }
                 MainMenuComponent.prototype.sendQueueRequest = function () {
+                    var _this = this;
                     //TODO send socket signal - enter queue
                     //TODO disable button find Game, if in queue
                     //this.router.navigateByUrl("/game");đ
@@ -48,6 +49,17 @@ System.register(['@angular/core', '../sockets/socketController', '../game/game.c
                     socketController_1.SocketController.registerSocket('gameInvite', function (data) {
                         console.log("received gameInvite.");
                         socketController_1.SocketController.emit("acceptQueue", { answer: true, gameId: game_component_1.GameComponent.gameId });
+                    });
+                    socketController_1.SocketController.registerSocket('gameScore', function (data) {
+                        console.log("received gameScore.");
+                        console.log(data);
+                    });
+                    socketController_1.SocketController.registerSocket('gameInformation', function (data) {
+                        console.log("received gameInformation.");
+                        game_component_1.GameComponent.mapName = data.mapName;
+                        game_component_1.GameComponent.mapTiles = data.mapTiles;
+                        game_component_1.GameComponent.tanks = data.tanks;
+                        _this.router.navigateByUrl("/game");
                     });
                 };
                 MainMenuComponent = __decorate([

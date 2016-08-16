@@ -87,7 +87,6 @@ System.register(['../Config/Config', './MapObject'], function(exports_1, context
                         this.setHit();
                         //TODO remove tile that was hit
                         for (var index in this.blockingTiles) {
-                            //console.log("OVO JE BLOCKING tiles: ", this.blockingTiles.length);
                             this.removeTileFromMap(this.blockingTiles[index]);
                         }
                         //this.animations("explosion").onComplete

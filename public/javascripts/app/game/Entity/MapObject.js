@@ -138,6 +138,9 @@ System.register(['../Config/Config'], function(exports_1, context_1) {
                 MapObject.prototype.removeIdle = function () {
                     this.idle = false;
                 };
+                MapObject.prototype.setIdle = function () {
+                    this.idle = true;
+                };
                 MapObject.prototype.checkTileMapCollision = function () {
                     this.blockingTiles = new Array();
                     this.currentRow = parseInt((this.y / this.mapTileSize).toString(), 10);

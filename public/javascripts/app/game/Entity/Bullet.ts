@@ -82,7 +82,6 @@ export class Bullet extends MapObject {
 			this.setHit();
 			//TODO remove tile that was hit
 			for( let index in this.blockingTiles){
-				//console.log("OVO JE BLOCKING tiles: ", this.blockingTiles.length);
 				this.removeTileFromMap(this.blockingTiles[index]);
 			}
 			//this.animations("explosion").onComplete

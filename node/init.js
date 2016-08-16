@@ -27,7 +27,7 @@ var initControllers = () => {
     let GameQueueController = require(global.nodeDirectory + '/Controllers/Game/gameQueueController.js');
     let GameController = require(global.nodeDirectory + '/Controllers/Game/gameController.js');
 
-    gameController = new GameController(config);
+    gameController = new GameController(config, db);
     gameQueueController = new GameQueueController(gameQueueModel, gameController, config, emitter);
     usersController = new UsersController(config);
 };
@@ -44,7 +44,7 @@ var initRoutes = () => {
 };
 
 var initSapis = () => {
-    require(`${global.nodeDirectory}/Controllers/Sockets/socketController.js`).init( io, emitter, usersController, gameQueueController );
+    require(`${global.nodeDirectory}/Controllers/Sockets/socketController.js`).init( io, emitter, usersController, gameQueueController, gameController );
 };
 
 

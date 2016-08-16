@@ -8,7 +8,12 @@ const sapis = {
 
 	//gameQueue based sapis,
 	enterQueue: 'enterQueue',
-	acceptQueue: 'acceptQueue'
+	acceptQueue: 'acceptQueue',
+
+	//game based sapis
+	gameTankAction: 'gameTankAction',
+	gameChatMessage: 'gameChatMessage',
+	gameTankHit: 'gameTankHit'
 };
 
 module.exports = sapis;

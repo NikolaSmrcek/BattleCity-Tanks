@@ -1,6 +1,6 @@
 <div class="container" style="width:inherit">
     <div class="battleCityChatMessagesContainer pre-scrollable text-left">
-        <div *ngFor="#msg of conversation" class="battleCityChatMessage" [style.background-color] = "msg.color">
+        <div *ngFor="let msg of conversation" class="battleCityChatMessage" [style.background-color] = "msg.color">
             <span>
 				{{msg.message}}
 			</span>

@@ -3,6 +3,8 @@ import { Config } from '../Config/Config';
 import { Keys } from '../Handlers/Keys';
 import { Bullet } from './Bullet';
 
+import { SocketController } from '../../sockets/socketController';
+
 declare var PIXI: any;
 
 export class Tank extends MapObject {
@@ -24,12 +26,15 @@ export class Tank extends MapObject {
 	public flinchStop: number = 0;
 
 	public spawning: boolean = false;
+	public shooting: boolean = false;
 
 	public enemyTanks: any = null;
 	public bullets: any = null;
 
 	//TODO change way or place to hold SpriteUtilites and texture
 	public pixiObject: any = null;
+
+	private gameId: string = "";
 
 	//pixiObject must have a texture, tankColour, tankType, tankOwner and isMyTank and SpriteUtilites as u
 	//pixiObject has initial x and y coordinates, stage od the pixi gameAlso
@@ -43,6 +48,8 @@ export class Tank extends MapObject {
 		this.tankColour = pixiObject.tankColour;
 		this.tankType = pixiObject.tankType;
 		this.isMyTank = pixiObject.isMyTank || false;
+
+		this.gameId = pixiObject.gameId;
 
 		this.bullets = new Array();
 
@@ -70,7 +77,6 @@ export class Tank extends MapObject {
 				this.xtemp = this.x;
 				this.ytemp = this.y;
 			}
-			//TODO checking if anyof my bullets hit enemyTank
 			//bullet set removable
 			for (let j = 0; j < this.bullets.length; j++) {
 				//for loop where we check if the bullets collided, if they did just remove them - nothing happens
@@ -82,6 +88,7 @@ export class Tank extends MapObject {
 				}
 				if (this.bullets[j].intersects(this.enemyTanks[i])) {
 					//TODO add explosion animation to tank
+					if(this.isMyTank) SocketController.emit("gameTankHit", { tankOwner: this.tankOwner, gameId: this.gameId });
 					this.enemyTanks[i].setHit(this.bullets[j].getBulletDamage());
 					this.bullets[j].setRemove();
 					break;
@@ -98,12 +105,14 @@ export class Tank extends MapObject {
 			//TODO explosion
 			this.setAnimation("explosion");
 		}
+		
 	}
 
 	//smoothing the movement
 	private getNextPosition() {
-		if (this.idle) return;
-		if ((this.isMyTank && !Keys.isSomeKeyPressed) || Keys.checkKeyPress("shoot")) {
+		//if (this.idle) return;
+		//(this.isMyTank && !Keys.isSomeKeyPressed) || Keys.checkKeyPress("shoot") 
+		if (this.idle || this.shooting) {
 			this.dx = 0;
 			this.dy = 0;
 			return;
@@ -238,6 +247,14 @@ export class Tank extends MapObject {
 		this.bullets = _bullets;
 	}
 
+	public setShooting() {
+		this.shooting = true;
+	}
+
+	public removeShooting() {
+		this.shooting = false;
+	}
+
 	public addBullet() {
 		//TODO mana or timedelay
 		if (this.mana >= this.bulletManaCost) {
@@ -268,7 +285,6 @@ export class Tank extends MapObject {
 		//animate bullets
 		for (let i = 0; i < this.bullets.length; i++) {
 			if (this.bullets[i].isRemovable()) {
-				//TODO delete Enemy
 				this.bullets[i].safetlyRemove();
 				delete this.bullets[i];
 				this.bullets.splice(i, 1);

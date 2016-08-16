@@ -5,6 +5,8 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+var mongo = require('mongodb');
+
 global.nodeDirectory = __dirname + '/node';
 
 var config = require('./node/config');
@@ -16,10 +18,35 @@ var http = require('http');
 var server = http.createServer(app);
 //Setting up io
 var io = setupIO(server);
+var db = connectToDataBase();
+
+checkDbConnection();
 
 //Init models, routes and Controllers
-require(global.nodeDirectory+'/init.js').init(app,null,io, config);
+require(global.nodeDirectory + '/init.js').init(app, db, io, config);
 
+function checkDbConnection() {
+    if (typeof db === "string") {
+        console.log(db);
+        process.exit(1);
+    }
+    db.open(err => {
+        if (err) {
+            console.log("Unable to connect to database: ", err);
+            process.exit(1);
+        }
+    });
+
+    db.on("close", function(e) {
+        console.log("process die because mongo connection closed: ", e);
+        process.exit(1);
+    });
+}
+
+function connectToDataBase() {
+    if (!config.mongoHost || !config.mongoPort) return "Mongoport or mongoHost missing for database connection";
+    return new mongo.Db(config.mongoDBname, new mongo.Server(config.mongoHost, config.mongoPort || 27017, { auto_reconnect: true, poolSize: 15 }), { native_parser: false, safe: true });
+}
 
 function setupExpress() {
     let app = express();

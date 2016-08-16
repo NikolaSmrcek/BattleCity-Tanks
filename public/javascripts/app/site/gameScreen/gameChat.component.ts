@@ -1,6 +1,8 @@
 import { Component, ElementRef } from '@angular/core';
 import { Keys } from '../../game/Handlers/Keys';
 
+import { GameComponent } from '../../game/game.component';
+import { SocketController } from '../../sockets/socketController';
 //TODO import SocketController - emit messages and display messages
 
 @Component({
@@ -15,15 +17,17 @@ export class GameChat {
 	public message: "";
 
 	constructor() {
-
+		this.conversation = [];
 	}
 
 	ngOnInit() {
-		//todo register sockets - for pushing on receive
+		this.conversation = [];
+		SocketController.registerSocket("gameChatMessage", (data) => {
+			this.conversation.push({ "message": data.message, "color": data.color });
+		});
 	}
 	send() {
-		//TODO SEND SOCKET MESSAGE
-		this.conversation.push({ "message": this.message, "color": "red" });
+		SocketController.emit("gameChatMessage", { message: this.message, color: GameComponent.myTankColour, gameId: GameComponent.gameId, tankOwner: GameComponent.userName });
 		this.message = "";
 	}
 

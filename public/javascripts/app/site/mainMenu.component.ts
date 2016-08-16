@@ -5,7 +5,7 @@ import {GameComponent} from '../game/game.component';
 import {Router} from '@angular/router';
 
 import {KeyBoardConfigComponent} from './keyboard/keyboardConfig.component';
-//imported componened we added as Directive so it we can shot it's content in the templateURL
+//imported component we added as Directive so it we can shot it's content in the templateURL
 
 
 @Component({
@@ -31,7 +31,20 @@ export class MainMenuComponent {
         });
         SocketController.registerSocket('gameInvite', (data) => {
             console.log("received gameInvite.");
-            SocketController.emit("acceptQueue", {answer:true, gameId: GameComponent.gameId});
+            SocketController.emit("acceptQueue", { answer: true, gameId: GameComponent.gameId });
+        });
+
+        SocketController.registerSocket('gameScore', (data) => {
+            console.log("received gameScore.");
+            console.log(data);
+        });
+
+        SocketController.registerSocket('gameInformation', (data) => {
+            console.log("received gameInformation.");
+            GameComponent.mapName = data.mapName;
+            GameComponent.mapTiles = data.mapTiles;
+            GameComponent.tanks = data.tanks;
+            this.router.navigateByUrl("/game")
         });
     }
 
