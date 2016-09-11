@@ -31,6 +31,12 @@ export class Bullet extends MapObject {
 		//console.log("This animations[explosion] bullet: ", this.animations["explosion"]);
 	}
 
+	protected isTileBlockingWrapper(row, column) {
+		let blocking = this.tileMap.isTileBulletBlocking(row, column);
+		if (blocking) this.blockingTiles.push(this.tileMap.getTile(row, column));
+		return blocking;
+	}
+
 	private calculateVelocity() {
 		switch (this.currentDirection) {
 			case "left":
@@ -49,15 +55,15 @@ export class Bullet extends MapObject {
 		}
 	}
 
-	public getBulletDamage(){
+	public getBulletDamage() {
 		return this.bulletDamage;
 	}
 
-	public setBulletDamage(bulletDamage:number = 1){
+	public setBulletDamage(bulletDamage: number = 1) {
 		this.bulletDamage = bulletDamage;
 	}
 
-	public incrementBulletDamage(bulletDamage:number = 1){
+	public incrementBulletDamage(bulletDamage: number = 1) {
 		this.bulletDamage += bulletDamage;
 	}
 
@@ -81,7 +87,7 @@ export class Bullet extends MapObject {
 		if (this.dx == 0 && this.dy == 0) {
 			this.setHit();
 			//TODO remove tile that was hit
-			for( let index in this.blockingTiles){
+			for (let index in this.blockingTiles) {
 				this.removeTileFromMap(this.blockingTiles[index]);
 			}
 			//this.animations("explosion").onComplete

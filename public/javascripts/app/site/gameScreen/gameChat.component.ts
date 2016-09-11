@@ -18,6 +18,7 @@ export class GameChat {
 
 	constructor() {
 		this.conversation = [];
+		//bindat tipku ESC da izade iz inputa
 	}
 
 	ngOnInit() {
@@ -27,6 +28,7 @@ export class GameChat {
 		});
 	}
 	send() {
+
 		SocketController.emit("gameChatMessage", { message: this.message, color: GameComponent.myTankColour, gameId: GameComponent.gameId, tankOwner: GameComponent.userName });
 		this.message = "";
 	}

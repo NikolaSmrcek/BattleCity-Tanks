@@ -43,15 +43,15 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                     this.u = null;
                     this.tileMap = null;
                     this.myTank = null;
-                    //TODO  - from socket
-                    this.gameOver = false;
                     this.enemyTanks = null;
                     //TODO reorganize
+                    GameComponent.gameOver = false;
                     this.renderer = PIXI.autoDetectRenderer(Config_1.Config.gameWidth, Config_1.Config.gameHeight, { backgroundColor: Config_1.Config.gameBackgroundColour });
                     this.stage = new PIXI.Container();
                     this.u = new SpriteUtilities(PIXI);
                     this.element = _element;
                     this.enemyTanks = new Array();
+                    this.myTank = {};
                     //reseting PIXI in memory 
                     PIXI.loader.reset();
                     PIXI.loader.add('gameTileSet', '/public/assets/game/images/gameTileSet.png').load(this.onAssetsLoaded.bind(this));
@@ -62,13 +62,6 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                     this.tileMap = new TileMap_1.TileMap(this.stage, this.u);
                     this.tileMap.loadTiles(resources.gameTileSet.texture);
                     this.tileMap.loadMap(GameComponent.mapTiles); //TODO get map from socket
-                    //TODO make tanks from data that come from socket
-                    /*
-                    let tanks = [{ tankColour: "yellow", tankType: "small", tankOwner: "RANDOM12", isMyTank: false, x: 500, y: 500, direction: "left" },
-                        { tankColour: "grey", tankType: "small", tankOwner: "RANDOM2", isMyTank: false, x: 100, y: 100, direction: "left" },
-                        { tankColour: "pink", tankType: "small", tankOwner: "RANDOM3", isMyTank: false, x: 300, y: 300, direction: "left" },
-                        { tankColour: "green", tankType: "small", tankOwner: "kanta", isMyTank: true, x: 250, y: 450, direction: "right" }];
-                    */
                     this.registerTanks(GameComponent.tanks, resources.gameTileSet.texture);
                     //TODO removeIdle on first socket for each tank
                     //Registrating keyboard movements for game
@@ -170,17 +163,7 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                             return console.log("Missing data");
                         if (data.gameId !== GameComponent.gameId)
                             return console.log("Non matching gameId");
-                        var tank = null;
-                        if (data.tankOwner === GameComponent.userName) {
-                            tank = _this.myTank;
-                        }
-                        else {
-                            for (var j = 0; j < _this.enemyTanks.length; j++) {
-                                if (_this.enemyTanks[j].tankOwner === data.tankOwner) {
-                                    tank = _this.enemyTanks[j];
-                                }
-                            }
-                        }
+                        var tank = _this._getTank(data.tankOwner);
                         if (tank === null)
                             return console.log("Could not determine tank by tankOwner.");
                         switch (data.action) {
@@ -202,11 +185,37 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                                 console.log("Unknown action sent, action: " + data.action);
                         }
                     });
+                    /*
+                    SocketController.registerSocket('gameScore', (data) => {
+                        console.log("received gameScore.");
+                        //console.log(data);
+                        for(let index in data){
+                            let currentTank = data[index];
+                            let tank = this._getTank(currentTank.tankOwner);
+                            tank.score = currentTank.score;
+                        }
+                        //TODO score
+                    });
+                    */
+                };
+                GameComponent.prototype._getTank = function (tankOwner) {
+                    var tank = null;
+                    if (tankOwner === GameComponent.userName) {
+                        tank = this.myTank;
+                    }
+                    else {
+                        for (var j = 0; j < this.enemyTanks.length; j++) {
+                            if (this.enemyTanks[j].tankOwner === tankOwner) {
+                                tank = this.enemyTanks[j];
+                            }
+                        }
+                    }
+                    return tank;
                 };
                 GameComponent.prototype.animate = function () {
                     //this.animate.bind(this) jer callback izgubi referencu
                     requestAnimationFrame(this.animate.bind(this));
-                    if (!this.gameOver) {
+                    if (!GameComponent.gameOver) {
                         this.myTank.animate();
                         //animate other tanks also
                         for (var i = 0; i < this.enemyTanks.length; i++) {
@@ -216,6 +225,8 @@ System.register(['@angular/core', './Tiles/TileMap', './Config/Config', './Handl
                     // render the container
                     this.renderer.render(this.stage);
                 };
+                //TODO  - from socket
+                GameComponent.gameOver = false;
                 GameComponent.userName = "kanta";
                 GameComponent.myTankColour = "";
                 GameComponent.gameId = "";

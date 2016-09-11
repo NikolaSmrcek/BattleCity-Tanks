@@ -1,7 +1,7 @@
 var emitter = null;
 var sapis = require(global.nodeDirectory + '/Models/Sockets/meta/sapis.js');
 
-exports.init = ( io, _emitter, usersController, gameQueueController, gameController ) => {
+exports.init = (io, _emitter, usersController, gameQueueController, gameController) => {
     emitter = _emitter;
     //TODO rethink, maybe we will need to set emitter to queueController
     //queueModel =  used for contaning data for queue
@@ -22,6 +22,7 @@ exports.init = ( io, _emitter, usersController, gameQueueController, gameControl
 
         //userRelated sapis - info, userName etc.
         socket.on(sapis.userName, data => userRelatedSapi[sapis.userName]({ socket, data, emitter, usersController }));
+        socket.on(sapis.setStatus, data => userRelatedSapi[sapis.setStatus]({ socket, data, emitter, usersController }));
 
         //queueRelated sapis - joining the queue, accepting queue call
         socket.on(sapis.enterQueue, data => queueSapi[sapis.enterQueue]({ socket, data, emitter, gameQueueController, usersController }));
@@ -31,7 +32,7 @@ exports.init = ( io, _emitter, usersController, gameQueueController, gameControl
         socket.on(sapis.gameTankAction, data => gameSapi[sapis.gameTankAction]({ socket, data, emitter, gameController }));
         socket.on(sapis.gameChatMessage, data => gameSapi[sapis.gameChatMessage]({ socket, data, emitter, gameController }));
         socket.on(sapis.gameTankHit, data => gameSapi[sapis.gameTankHit]({ socket, data, emitter, gameController }));
-        
+
         //join each socket to it's own channel
         socket.join(socket.id);
     });

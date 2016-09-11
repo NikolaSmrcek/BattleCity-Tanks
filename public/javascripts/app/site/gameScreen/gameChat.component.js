@@ -32,6 +32,7 @@ System.register(['@angular/core', '../../game/Handlers/Keys', '../../game/game.c
                 function GameChat() {
                     this.conversation = [];
                     this.conversation = [];
+                    //bindat tipku ESC da izade iz inputa
                 }
                 GameChat.prototype.ngOnInit = function () {
                     var _this = this;
@@ -41,7 +42,6 @@ System.register(['@angular/core', '../../game/Handlers/Keys', '../../game/game.c
                     });
                 };
                 GameChat.prototype.send = function () {
-                    //this.conversation.push({ "message": this.message, "color": "red" });
                     socketController_1.SocketController.emit("gameChatMessage", { message: this.message, color: game_component_1.GameComponent.myTankColour, gameId: game_component_1.GameComponent.gameId, tankOwner: game_component_1.GameComponent.userName });
                     this.message = "";
                 };

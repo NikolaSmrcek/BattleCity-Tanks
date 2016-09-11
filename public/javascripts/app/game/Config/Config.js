@@ -54,13 +54,33 @@ System.register([], function(exports_1, context_1) {
                         removable: true,
                         x: 256,
                         y: 64
-                    } //brick players can destroy it, can't pass it. - brick
+                    },
+                    grass: {
+                        type: 3,
+                        skip: false,
+                        blocking: false,
+                        bulletBlocking: false,
+                        removable: false,
+                        x: 264,
+                        y: 72
+                    },
+                    sea: {
+                        type: 4,
+                        skip: false,
+                        blocking: true,
+                        bulletBlocking: false,
+                        removable: false,
+                        x: 256,
+                        y: 80
+                    }
                 };
                 //MAPPING - used when reading the map
                 Config.tileTypesMapping = {
                     "0": "nothing",
                     "1": "greyWall",
-                    "2": "brick"
+                    "2": "brick",
+                    "3": "grass",
+                    "4": "sea"
                 };
                 //Tank animations - for pixi
                 Config.tankAnimations = {

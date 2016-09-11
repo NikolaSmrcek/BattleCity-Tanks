@@ -42,6 +42,12 @@ System.register(['../Config/Config', './MapObject'], function(exports_1, context
                     };
                     //console.log("This animations[explosion] bullet: ", this.animations["explosion"]);
                 };
+                Bullet.prototype.isTileBlockingWrapper = function (row, column) {
+                    var blocking = this.tileMap.isTileBulletBlocking(row, column);
+                    if (blocking)
+                        this.blockingTiles.push(this.tileMap.getTile(row, column));
+                    return blocking;
+                };
                 Bullet.prototype.calculateVelocity = function () {
                     switch (this.currentDirection) {
                         case "left":

@@ -31,6 +31,8 @@ export class Tank extends MapObject {
 	public enemyTanks: any = null;
 	public bullets: any = null;
 
+	public score: any = 0;
+
 	//TODO change way or place to hold SpriteUtilites and texture
 	public pixiObject: any = null;
 
@@ -48,6 +50,8 @@ export class Tank extends MapObject {
 		this.tankColour = pixiObject.tankColour;
 		this.tankType = pixiObject.tankType;
 		this.isMyTank = pixiObject.isMyTank || false;
+
+		this.score = 0;
 
 		this.gameId = pixiObject.gameId;
 

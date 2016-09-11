@@ -1,4 +1,4 @@
-System.register(['@angular/core', '../sockets/socketController', '../game/game.component', '@angular/router', './keyboard/keyboardConfig.component'], function(exports_1, context_1) {
+System.register(['@angular/core', '../sockets/socketController', '../game/game.component', './gameScreen/gameScore.component', '@angular/router', './keyboard/keyboardConfig.component'], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,7 +10,7 @@ System.register(['@angular/core', '../sockets/socketController', '../game/game.c
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, socketController_1, game_component_1, router_1, keyboardConfig_component_1;
+    var core_1, socketController_1, game_component_1, gameScore_component_1, router_1, keyboardConfig_component_1;
     var MainMenuComponent;
     return {
         setters:[
@@ -23,6 +23,9 @@ System.register(['@angular/core', '../sockets/socketController', '../game/game.c
             function (game_component_1_1) {
                 game_component_1 = game_component_1_1;
             },
+            function (gameScore_component_1_1) {
+                gameScore_component_1 = gameScore_component_1_1;
+            },
             function (router_1_1) {
                 router_1 = router_1_1;
             },
@@ -34,12 +37,12 @@ System.register(['@angular/core', '../sockets/socketController', '../game/game.c
             MainMenuComponent = (function () {
                 function MainMenuComponent(router) {
                     this.router = router;
+                    this.isValid = true;
                 }
                 MainMenuComponent.prototype.sendQueueRequest = function () {
                     var _this = this;
-                    //TODO send socket signal - enter queue
                     //TODO disable button find Game, if in queue
-                    //this.router.navigateByUrl("/game");đ
+                    this.isValid = false;
                     console.log("Clicked play!");
                     socketController_1.SocketController.emit('enterQueue', { userName: game_component_1.GameComponent.userName });
                     socketController_1.SocketController.registerSocket('gameJoin', function (data) {
@@ -50,15 +53,15 @@ System.register(['@angular/core', '../sockets/socketController', '../game/game.c
                         console.log("received gameInvite.");
                         socketController_1.SocketController.emit("acceptQueue", { answer: true, gameId: game_component_1.GameComponent.gameId });
                     });
-                    socketController_1.SocketController.registerSocket('gameScore', function (data) {
-                        console.log("received gameScore.");
-                        console.log(data);
-                    });
                     socketController_1.SocketController.registerSocket('gameInformation', function (data) {
                         console.log("received gameInformation.");
                         game_component_1.GameComponent.mapName = data.mapName;
                         game_component_1.GameComponent.mapTiles = data.mapTiles;
                         game_component_1.GameComponent.tanks = data.tanks;
+                        gameScore_component_1.GameScore.tanks = data.tanks;
+                        gameScore_component_1.GameScore.mapName = data.mapName;
+                        gameScore_component_1.GameScore.gameDuration = data.gameDuration;
+                        gameScore_component_1.GameScore.gameWinningScore = data.gameWinningScore;
                         _this.router.navigateByUrl("/game");
                     });
                 };
@@ -76,18 +79,4 @@ System.register(['@angular/core', '../sockets/socketController', '../game/game.c
         }
     }
 });
-/*
-        SocketController.registerSocket('priceUpdate', (data) => {this.price = data;} );
-        //TODO remove below lines, only for testing
-        SocketController.emit('userName', { userName: "kanta2323"+Math.floor((Math.random() * 100) + 1) });
-           
-        setTimeout(() => {
-            SocketController.emit('enterQueue', { userName: "kanta2323" });
-        }, 100);
-
-        setInterval(()=> {
-            console.log("TRying to enter queue");
-            SocketController.emit('enterQueue', { userName: "kanta2323" });
-        },1000*10);
- */ 
 //# sourceMappingURL=mainMenu.component.js.map

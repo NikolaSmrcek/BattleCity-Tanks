@@ -30,7 +30,7 @@ export class GameComponent {
     public myTank: any = null;
 
     //TODO  - from socket
-    public gameOver: boolean = false;
+    public static gameOver: boolean = false;
     public static userName: string = "kanta";
     public static myTankColour: string = "";
     public static gameId: string = "";
@@ -43,11 +43,13 @@ export class GameComponent {
 
     constructor(public _element: ElementRef) {
         //TODO reorganize
+        GameComponent.gameOver = false;
         this.renderer = PIXI.autoDetectRenderer(Config.gameWidth, Config.gameHeight, { backgroundColor: Config.gameBackgroundColour });
         this.stage = new PIXI.Container();
         this.u = new SpriteUtilities(PIXI);
         this.element = _element;
         this.enemyTanks = new Array();
+        this.myTank = {};
 
         //reseting PIXI in memory 
         PIXI.loader.reset();
@@ -63,13 +65,6 @@ export class GameComponent {
         this.tileMap.loadTiles(resources.gameTileSet.texture);
         this.tileMap.loadMap(GameComponent.mapTiles); //TODO get map from socket
 
-        //TODO make tanks from data that come from socket
-        /*
-        let tanks = [{ tankColour: "yellow", tankType: "small", tankOwner: "RANDOM12", isMyTank: false, x: 500, y: 500, direction: "left" },
-            { tankColour: "grey", tankType: "small", tankOwner: "RANDOM2", isMyTank: false, x: 100, y: 100, direction: "left" },
-            { tankColour: "pink", tankType: "small", tankOwner: "RANDOM3", isMyTank: false, x: 300, y: 300, direction: "left" },
-            { tankColour: "green", tankType: "small", tankOwner: "kanta", isMyTank: true, x: 250, y: 450, direction: "right" }];
-        */
         this.registerTanks(GameComponent.tanks, resources.gameTileSet.texture);
 
         //TODO removeIdle on first socket for each tank
@@ -178,18 +173,7 @@ export class GameComponent {
         SocketController.registerSocket("gameTankAction", (data) => {
             if (!data.tankOwner || !data.gameId || !data.action) return console.log("Missing data");
             if (data.gameId !== GameComponent.gameId) return console.log("Non matching gameId");
-            let tank = null;
-            if (data.tankOwner === GameComponent.userName) {
-                tank = this.myTank;
-            }
-            else {
-                for (let j = 0; j < this.enemyTanks.length; j++) {
-                    if (this.enemyTanks[j].tankOwner === data.tankOwner) {
-                        tank = this.enemyTanks[j];
-                    }
-                }
-            }
-
+            let tank = this._getTank(data.tankOwner);
             if (tank === null) return console.log("Could not determine tank by tankOwner.");
             switch (data.action) {
                 case "direction":
@@ -211,13 +195,41 @@ export class GameComponent {
             }
 
         });
+        /*
+        SocketController.registerSocket('gameScore', (data) => {
+            console.log("received gameScore.");
+            //console.log(data);
+            for(let index in data){
+                let currentTank = data[index];
+                let tank = this._getTank(currentTank.tankOwner);
+                tank.score = currentTank.score;
+            }
+            //TODO score
+        });
+        */
+
+    }
+
+    _getTank(tankOwner) {
+        let tank = null;
+        if (tankOwner === GameComponent.userName) {
+            tank = this.myTank;
+        }
+        else {
+            for (let j = 0; j < this.enemyTanks.length; j++) {
+                if (this.enemyTanks[j].tankOwner === tankOwner) {
+                    tank = this.enemyTanks[j];
+                }
+            }
+        }
+        return tank;
     }
 
     animate() {
         //this.animate.bind(this) jer callback izgubi referencu
         requestAnimationFrame(this.animate.bind(this));
 
-        if (!this.gameOver) {
+        if (!GameComponent.gameOver) {
             this.myTank.animate();
             //animate other tanks also
 

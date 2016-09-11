@@ -39,7 +39,7 @@ export class Config {
 			x: 384,
 			y: 0
 		}, //greyWall around the game - players can't do any action to it - greyWall
-		brick: {
+		brick: { //brick players can destroy it, can't pass it. - brick
 			type: 2,
 			skip: false,
 			blocking: true,
@@ -47,13 +47,34 @@ export class Config {
 			removable: true,
 			x: 256,
 			y: 64
-		} //brick players can destroy it, can't pass it. - brick
+		},
+		grass: {
+			type: 3,
+			skip: false,
+			blocking: false,
+			bulletBlocking: false,
+			removable: false,
+			x: 264,
+			y: 72
+		},
+		sea: {
+			type: 4,
+			skip: false,
+			blocking: true,
+			bulletBlocking: false,
+			removable: false,
+			x: 256,
+			y: 80
+		}
+
 	};
 	//MAPPING - used when reading the map
 	public static tileTypesMapping: any = {
 		"0": "nothing",
 		"1": "greyWall",
-		"2": "brick"
+		"2": "brick",
+		"3": "grass",
+		"4": "sea"
 	};
 	//Tank animations - for pixi
 	public static tankAnimations: any = {

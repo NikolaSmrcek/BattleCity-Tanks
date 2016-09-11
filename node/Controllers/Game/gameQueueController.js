@@ -65,8 +65,6 @@ class gameQueueController {
     }
 
     _assignMember(members, callback = () => {}) {
-        //TODO somehow emit a player message to join game
-        logger.log("Assign members called.");
         async.eachSeries(members, (member, innerCallback) => {
             async.waterfall([
                 //get all queueGame
@@ -174,7 +172,7 @@ class gameQueueController {
 
         }, (err) => {
             if (err) {
-                return callback("Error while assigning member to queue.")
+                return callback(err);
             }
             return callback(null);
         });
@@ -281,6 +279,7 @@ class gameQueueController {
                 if (err) return callback(err);
             });
         }, this.config.queueInviteWaitingTime);
+        return callback(null);
     }
 
     //todo find game object

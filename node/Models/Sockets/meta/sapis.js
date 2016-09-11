@@ -4,7 +4,8 @@ const sapis = {
 	unsubscribe: 'unsubscribe',
 
 	//application based
-	userName: 'userName', //used for initial "login" into onlineUsers
+	userName: 'userName',  //used for initial "login" into onlineUsers
+	setStatus: 'setStatus',
 
 	//gameQueue based sapis,
 	enterQueue: 'enterQueue',

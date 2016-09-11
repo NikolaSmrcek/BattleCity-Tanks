@@ -1,0 +1,28 @@
+<div class="container" style="width:inherit">
+    <div class="row">
+        <div class="col-md-3 text-center">
+            <span [style.color]="rulesColor">
+                Game winning score : {{_gameWinningScore}}
+            </span>
+        </div>
+        <div class="col-md-6 text-center">
+            <div *ngIf="myTank">
+                <span [style.color]="myTank.tankColour">
+                {{myTank.tankOwner}} - {{myTank.score}}
+            </span>
+                <br>
+            </div>
+            <div *ngFor="let et of enemyTanks">
+                <span [style.color]="et.tankColour">
+                {{et.tankOwner}} - {{et.score}}
+            </span>
+                <br>
+            </div>
+        </div>
+        <div class="col-md-3 text-center">
+            <span [style.color]="rulesColor">
+                Time left : {{_gameDuration}}s
+            </span>
+        </div>
+    </div>
+</div>

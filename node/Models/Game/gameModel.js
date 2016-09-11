@@ -54,7 +54,6 @@ class GameModel {
         this.getTankByTankOwner(tankOwner, (err, tank) => {
             tank.score += 1; //TODO change in case of powerups
             if (tank.score >= this.config.gameWinningScore) {
-                console.log("GameOVER!!!!!!");
                 this.gameOver = true;
                 this.status = "completed";
                 //TODO emit gameOver
@@ -74,7 +73,7 @@ class GameModel {
                     tank.directionsChanged += 1;
                     break;
                 default:
-                    console.log("Unknown action: " + action);
+                    //console.log("Unknown action: " + action);
             }
             return callback(null);
         });
@@ -117,8 +116,8 @@ class GameModel {
     addMember(member = null, callback = () => {}) {
         if (!member) return callback("Member cannot be null.");
         if (this.gameMembers.length < this.config.maxGameMembers) {
-            //this.gameMembers.push(lodash.cloneDeep(member));
-            this.gameMembers.push(member);
+            this.gameMembers.push(lodash.cloneDeep(member));
+            //this.gameMembers.push(member);
             this.lastAddedMember = moment().unix();
             member.getSocketId((err, socketId) => {
                 //TODO get ID async

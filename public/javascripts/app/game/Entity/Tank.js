@@ -46,6 +46,7 @@ System.register(['./MapObject', '../Config/Config', './Bullet', '../../sockets/s
                     this.shooting = false;
                     this.enemyTanks = null;
                     this.bullets = null;
+                    this.score = 0;
                     //TODO change way or place to hold SpriteUtilites and texture
                     this.pixiObject = null;
                     this.gameId = "";
@@ -55,6 +56,7 @@ System.register(['./MapObject', '../Config/Config', './Bullet', '../../sockets/s
                     this.tankColour = pixiObject.tankColour;
                     this.tankType = pixiObject.tankType;
                     this.isMyTank = pixiObject.isMyTank || false;
+                    this.score = 0;
                     this.gameId = pixiObject.gameId;
                     this.bullets = new Array();
                     this.cwidth = Config_1.Config.entityTileSize * Config_1.Config.imageScale; //TODO check if * imageScale is neccesary

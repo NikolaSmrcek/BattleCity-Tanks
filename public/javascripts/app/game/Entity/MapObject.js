@@ -61,6 +61,12 @@ System.register(['../Config/Config'], function(exports_1, context_1) {
                     //TODO rethink where and how to put initial positioning
                     this.x = _pixiObject.x;
                     this.y = _pixiObject.y;
+                    this.xdest = 0;
+                    this.ydest = 0;
+                    this.xtemp = 0;
+                    this.ytemp = 0;
+                    this.dy = 0;
+                    this.dx = 0;
                     this.initialX = this.x;
                     this.initialY = this.y;
                     this.stage = _pixiObject.stage;
@@ -92,26 +98,16 @@ System.register(['../Config/Config'], function(exports_1, context_1) {
                     }
                     var rows = Math.abs(topTile - bottomTile) + 1;
                     var columns = Math.abs(leftTile - rightTile) + 1;
-                    //bottom
+                    //from top to bottom
                     for (var row = topTile; row < (topTile + rows); row++) {
                         this.leftTile = (this.leftTile == false) ? this.isTileBlockingWrapper(row, leftTile) : this.leftTile;
                         this.rightTile = (this.rightTile == false) ? this.isTileBlockingWrapper(row, rightTile) : this.rightTile;
                     }
-                    //right
+                    //from left to right
                     for (var column = leftTile; column < (leftTile + columns); column++) {
                         this.topTile = (this.topTile == false) ? this.isTileBlockingWrapper(topTile, column) : this.topTile;
                         this.bottomTile = (this.bottomTile == false) ? this.isTileBlockingWrapper(bottomTile, column) : this.bottomTile;
                     }
-                    //TODO remove tihs comment
-                    /*
-                    if (this.bullet1) {
-                        console.log("****************************");
-                        console.log("Left tile: ", this.leftTile, " Right tile: ", this.rightTile, " Top tile: ", this.topTile, " bottom tile: ", this.bottomTile);
-                        console.log("Left tile: ", leftTile, " Right tile: ", rightTile, " Top tile: ", topTile, " bottom tile: ", bottomTile);
-                        console.log("Current row: ", this.currentRow, " current column: ", this.currentColumn);
-                        console.log("****************************");
-                    }
-                    */
                 };
                 //used for checking collision between various game objects
                 MapObject.prototype.intersects = function (o1, o2) {

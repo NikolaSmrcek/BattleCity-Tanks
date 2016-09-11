@@ -1,5 +1,6 @@
 var async = require('async'),
     logger = require(`${global.nodeDirectory}/libs/logger.js`),
+    moment = require('moment'),
     lodash = require("lodash");
 
 class gameController {
@@ -16,6 +17,7 @@ class gameController {
             logger.log("gameController: have maps");
             this.maps = maps;
         });
+        this._checkGameOver();
     }
 
     getInProgressGames(callback = () => {}) {
@@ -126,9 +128,70 @@ class gameController {
             }
         ], err => {
             if (err) return callback(err);
-            game.emitToChannel("gameInformation", { mapName: map.mapName, mapTiles: map.mapTiles, tanks: tanks });
+            game.emitToChannel("gameInformation", {
+                mapName: map.mapName,
+                mapTiles: map.mapTiles,
+                tanks: tanks,
+                gameDuration: this.config.gameDuration,
+                gameWinningScore: this.config.gameWinningScore
+            });
+            game.gameStarted = moment().unix();
             return callback(null);
         });
+    }
+
+    _checkGameOver() {
+        setInterval(() => {
+            async.each(this.games, (game, innCallback) => {
+                if (!game.gameOver && ((moment().unix() - game.gameStarted) > this.config.gameDuration)) {
+                    console.log("Terminating game beacuse time expired!");
+                    game.gameOver = true;
+                    game.status = "completed";
+                }
+                if (game.gameOver) {
+                    //TODO wwrite to mongo, emit message
+                    game.emitToChannel("gameOver", {});
+                    this._saveGameToMongo(game, (err) => {
+                        if (err) {
+                            return innCallback(err);
+                        }
+                        lodash.remove(this.games, (_game) => {
+                            return _game.id == game.id;
+                        });
+                        return innCallback(null);
+                    });
+                } else {
+                    innCallback(null);
+                }
+            }, (err) => {
+                if (err) return console.log("Error checking if the game is over", err);
+            });
+        }, this.config.checkGameOver);
+
+    }
+
+    _saveGameToMongo(game = null, callback = () => {}) {
+        async.waterfall([
+            next => {
+                this.db.collection("games", next);
+            },
+            (collection, next) => {
+                let data = {
+                    gameCreated: game.created,
+                    conversation: game.conversation,
+                    tanks: game.tanks,
+                    map: game.map,
+                    created: new Date()
+                };
+                collection.save(data, next);
+            }
+        ], (err) => {
+            if (err) {
+                return callback(err);
+            }
+            return callback(null);
+        });
+
     }
 
 }
